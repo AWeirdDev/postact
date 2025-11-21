@@ -1,157 +1,91 @@
-export type StateUpdateDispatch<T> = (prev: T) => T;
-export type StateUpdate<T> = T | StateUpdateDispatch<T>;
+type UpdateDispatch<T> = (current: T) => T;
+type StateUpdate<T> = UpdateDispatch<T> | T;
 
-function isUpdater<T>(
-  a: T | StateUpdateDispatch<T>,
-): a is StateUpdateDispatch<T> {
-  return typeof a == "function";
+function resolveStateUpdate<T>(curr: T, update: StateUpdate<T>): T {
+  // @ts-ignore
+  return typeof update === "function" ? update(curr) : update;
 }
 
-function getStateUpdateResult<T>(current: T, item: StateUpdate<T>) {
-  return isUpdater(item) ? item(current) : item;
-}
+type StateSubscriber<T> = (curr: T) => {};
 
-interface StateSubscription {
-  /**
-   * Unsubsribes from state updates.
-   */
-  unsubscribe: () => any;
-}
+class State<T> {
+  #item: T;
+  #listeners: (StateSubscriber<T> | null)[];
 
-export class State<T> {
-  private _value: T;
-  private _subscribers: (((_: T) => any) | null)[];
-
-  constructor(defaultValue: T) {
-    this._value = defaultValue;
-    this._subscribers = [];
+  constructor(initial: T) {
+    this.#item = initial;
+    this.#listeners = [];
   }
 
   /**
-   * Gets the current value.
+   * Subscribe to state changes.
+   * @param subscriber The subscriber.
+   * @returns The identifier of this subscriber. You can use `unsubscribe()` to unsubscribe.
    */
-  get value(): T {
-    return this._value;
+  subscribe(subscriber: StateSubscriber<T>): number {
+    const identifier = this.#listeners.push(subscriber);
+    return identifier;
   }
 
   /**
-   * Updates the state and dispatch all subscribers without checking equality.
-   *
-   * @param item Either a function that takes the current value as argument (`(T) => T`) or just the value to replace with.
+   * Unsubscribe.
+   * @param identifier The identifier of the subscriber.
    */
-  updateEagerly(item: StateUpdate<T>): void {
-    this._value = getStateUpdateResult(this._value, item);
-    this.dispatch();
+  unsubscribe(identifier: number) {
+    this.#listeners[identifier] = null;
   }
 
   /**
-   * Subscribe to state updates.
-   *
-   * @param listener The listener. Takes an argument, which is the updated value.
+   * Update the state and eagerly trigger all subscribers.
+   * @param upd Update dispatch or value.
    */
-  subscribe(listener: (_: T) => any): StateSubscription {
-    const ln = this._subscribers.push(listener);
-    return { unsubscribe: () => (this._subscribers[ln - 1] = null) };
+  update(upd: StateUpdate<T>) {
+    this.#item = resolveStateUpdate(this.#item, upd);
+    this.#listeners.forEach(
+      (subscriber) => subscriber && subscriber(this.#item),
+    );
   }
 
-  /**
-   * Dispatch all subscribers.
-   */
-  dispatch() {
-    this._subscribers.forEach((item) => item && item(this._value));
+  get value() {
+    return this.#item;
   }
 }
 
-interface HasUpdate<T> {
-  /**
-   * Updates the state and dispatch all subscribers if old/assigned values aren't the same.
-   * @param item Either a function that takes the current value as argument (`(T) => T`) or just the value to replace with.
-   */
-  update: (item: StateUpdate<T>) => void;
-}
-
-interface StateEntrypoint {
-  <T>(defaultValue: T): State<T>;
-
-  /**
-   * Create a state manager designed for numbers.
-   * @param defaultValue
-   */
-  number(defaultValue: number): NumberState;
-
-  string(defaultValue: string): StringState;
-}
+const state = <T>(initial: T): State<T> => {
+  return new State(initial);
+};
 
 class NumberState extends State<number> {
-  add(by?: number) {
+  constructor(n: number) {
+    super(n);
+  }
+
+  override update(n: number) {
+    if (n == super.value) return;
+    super.update(n);
+  }
+
+  add(by: number = 1): void {
     if (by == 0) return;
-    this.updateEagerly(super.value + (by || 1));
+    this.update(super.value + by);
   }
 
-  sub(by?: number) {
+  sub(by: number = 1): void {
     if (by == 0) return;
-    this.updateEagerly(super.value - (by || 1));
+    this.update(super.value - by);
   }
 
-  mul(by: number) {
+  mul(by: number): void {
     if (by == 1) return;
-    this.updateEagerly(super.value * by);
+    this.update(super.value * by);
   }
 
-  div(by: number) {
+  div(by: number): void {
     if (by == 1) return;
-    this.updateEagerly(super.value / by);
-  }
-
-  [Symbol.toPrimitive](hint: string) {
-    if (hint == "string") return this.value.toString();
-    // if (hint == "number")
-    return this.value;
-  }
-
-  update(item: StateUpdate<number>) {
-    const expected = getStateUpdateResult(super.value, item);
-    if (expected == super.value) return;
-    super.updateEagerly(expected);
-  }
-
-  override toString(): string {
-    return super.value.toString();
+    this.update(super.value / by);
   }
 }
 
-class StringState extends State<string> {
-  constructor(df: string) {
-    super(df);
-  }
+state.number = (initial: number) => new NumberState(initial);
 
-  update(item: StateUpdate<string>) {
-    const expected = getStateUpdateResult(super.value, item);
-    if (super.value == expected) return;
-    super.updateEagerly(expected);
-  }
-
-  /**
-   *
-   * @param part Push a string part to the back to the string.
-   */
-  push(part: string) {
-    if (!part) return;
-    super.updateEagerly(super.value + part);
-  }
-
-  override toString(): string {
-    return super.value.toString();
-  }
-}
-
-/**
- * State management.
- */
-export const state: StateEntrypoint = Object.assign(
-  <T>(df: T): State<T> => new State(df),
-  {
-    number: (df: number) => new NumberState(df),
-    string: (df: string) => new StringState(df),
-  },
-);
+export { state };
