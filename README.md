@@ -1,33 +1,49 @@
 # postact
-web development for developers who procastinate like i do
+another way of web development that has nothing to do with the evil triangle company
 
-postact aims to be a somewhat unopinionated library for building robust web applications.
-that way, we can go back to the good old days of no weird ass frameworks... just as  
-jquery intended.
+expected usage:
 
-currently you can select elements: -
-
-```ts
-import { select, state } from "postact";
-
-const button = select("button");
-
-// handle counting
-const $count = state(0);
-button.on("click", () => {
-  $count.update(i => i + 1); // there should be a better way tho
-  
-  // render a virtual dom directly
-  button.render([
-    tag: "h1",
-    children: [`${$count}`]
-  ]);
-});
+```html
+<!-- index.html -->
+<div id="app"></div>
+<script src="./script.js"></script>
 ```
 
-it's intended to be that kind of simple. so you know... modern web development 
-won't feel that bloated and no one has to obey to some fucking triangle company 
-with their stupid fucking previous js.
+```ts
+// script.js
+function Button() {
+  // states are optimized for every type
+  // "maybe" type (aka. T | null) is coming soon, maybe
+  const $count = state.number(0);
 
-anyway, if you're interested in this project, consider opening an issue on how
-you think the design could be better. yeah, so i could procastinate more.
+  return html`<button onclick=${() => $count.add(1)}>
+                ${$count}
+              </button>`;
+}
+
+select("#app").render(Button());
+```
+
+essentially, the states themselves register updates for you, so the "entire" component would only render once, then the states will help with the small changes to the children, if needed.
+
+alternatively, if you hate the react-like component naming convention, or you have ssr ready, you can use `select()` to deal with most things
+
+```html
+<!-- index.html -->
+<button>0</button>
+<script src="./script.js"></script>
+```
+
+```ts
+// script.js
+const button = select("button");
+const $count = state.number(0);
+
+button.on("click", () => {
+  $count.add(1);
+});
+
+$count.subscribe((value) => {
+  button.textContent = value;
+})
+```
