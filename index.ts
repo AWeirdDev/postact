@@ -1,3 +1,3 @@
-import { state, select, $ } from "./src";
+import { state } from "./src";
 
-console.log($.div($.a("welcome!")));
+const $name = state(100);

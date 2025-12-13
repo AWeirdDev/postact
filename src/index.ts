@@ -1,2 +1,8 @@
 export { select, $ } from "./utilities";
-export { state } from "./state/base";
+export {
+  state,
+  type Checker,
+  type Subscriber,
+  type Updater,
+  type UpdateDispatch,
+} from "./state";
