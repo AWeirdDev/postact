@@ -1,6 +1,8 @@
 import type { State, Subscribable, Subscriber } from "./state";
 
 export class Dependent<T, R> implements Subscribable<R> {
+  public __postactItem: "dependent" = "dependent";
+
   #gen: (value: T) => R;
   #value: R;
   #subscribers: Subscriber<R>[];

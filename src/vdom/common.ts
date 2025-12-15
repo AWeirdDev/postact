@@ -1,2 +1,2 @@
-import type { State } from "../state";
-import type { VirtualItem } from "./structure";
+import type { Subscribable } from "../state";
+import type { VirtualElement } from "./structure";

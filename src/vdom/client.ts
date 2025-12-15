@@ -34,6 +34,11 @@ function _toFrag(vi: VirtualItem): DocumentFragment {
   return fragment;
 }
 
+/**
+ * Converts a virtual DOM to a document fragment for rendering it on the web.
+ * @param vi
+ * @returns
+ */
 export function virtualItemToFragment(vi: VirtualItem): DocumentFragment {
   ensureWindow();
   return _toFrag(vi);

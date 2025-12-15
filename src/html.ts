@@ -8,21 +8,24 @@ type Argument =
   | number
   | string
   | State<any>
-  | VirtualItem;
+  | VirtualItem
+  | Function;
 
 enum ArgumentType {
   Empty,
   Text,
-  State,
+  Subscribable,
   VirtualItem,
+  Function,
 }
 
 function identifyArgument(arg: Argument): ArgumentType {
   if (arg === null || typeof arg === "undefined") return ArgumentType.Empty;
+  if (typeof arg === "function") return ArgumentType.Function;
 
   // @ts-ignore javascript is gonna spare us with `undefined` anyway lmfao
-  if (arg["__postactItem"] === "state") {
-    return ArgumentType.State;
+  if (arg["__postactItem"] === "state" || arg["__postactItem"] == "dependent") {
+    return ArgumentType.Subscribable;
   }
 
   if (["number", "boolean", "string"].includes(typeof arg))
@@ -144,13 +147,15 @@ class HTMLParser {
     const [startTag, attributes, selfClosing, afterTagShouldInsert] =
       this.consumeTag();
 
+    const [listeners, attrs] = filterListenersFromAttributes(attributes);
+
     if (selfClosing) {
       return {
         __postactItem: "virtual-element",
         tag: startTag,
-        attributes,
+        attributes: attrs,
         children: [],
-        listeners: [],
+        listeners,
       };
     }
 
@@ -162,9 +167,9 @@ class HTMLParser {
     return {
       __postactItem: "virtual-element",
       tag: startTag,
-      attributes,
+      attributes: attrs,
       children,
-      listeners: [],
+      listeners,
     };
   }
 
@@ -172,7 +177,7 @@ class HTMLParser {
    *
    * @returns `[(tag name), (attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeTag(): [string, Record<string, string>, boolean, boolean] {
+  consumeTag(): [string, Record<string, string | Function>, boolean, boolean] {
     let tag = "";
     while (true) {
       const [shouldInsert, chr] = this.next()!;
@@ -197,8 +202,8 @@ class HTMLParser {
    *
    * @returns `[(attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeAttributes(): [Record<string, string>, boolean, boolean] {
-    const attrs: Record<string, string> = {};
+  consumeAttributes(): [Record<string, string | Function>, boolean, boolean] {
+    const attrs: Record<string, string | Function> = {};
     let name = "";
 
     /**
@@ -232,10 +237,13 @@ class HTMLParser {
 
       // finally not equal, process attr value
       if (chr == "=") {
-        const value = shouldInsert
-          ? this.getInsertion()!.toString()
+        const value: string | Function | null = shouldInsert
+          ? argToStringOrFn(this.getInsertion()!)
           : this.consumeStringQuote();
-        attrs[name] = value;
+
+        if (value !== null) {
+          attrs[name] = value;
+        }
 
         name = "";
         state = 0;
@@ -353,14 +361,55 @@ function addArgToChildren(insertion: Argument, children: VirtualItem[]) {
       children.push(insertion!.toString());
       break;
 
-    case ArgumentType.State:
-      // we'll keep it for now
+    case ArgumentType.Subscribable:
+      // we'll put the initial value
+      const value = (insertion as State<any>).value;
+      if (typeof value !== "undefined" && value !== null)
+        children.push(value.toString());
       break;
 
     case ArgumentType.VirtualItem:
       children.push(insertion as VirtualItem);
       break;
+    case ArgumentType.Function:
+      // similar to states, we'll do an initial render
+      const fValue = (insertion as Function)();
+      if (typeof fValue !== "undefined" && fValue !== null)
+        children.push(fValue.toString());
+      break;
   }
+}
+
+function argToStringOrFn(arg: Argument): string | Function | null {
+  switch (identifyArgument(arg)) {
+    case ArgumentType.Empty:
+      return null;
+    case ArgumentType.Text:
+      return arg!.toString();
+    case ArgumentType.Subscribable:
+      return ((arg as State<any>).value || "").toString();
+    case ArgumentType.VirtualItem:
+      // this should not be here
+      return null;
+    case ArgumentType.Function:
+      return arg as Function;
+  }
+}
+
+function filterListenersFromAttributes<
+  K = keyof HTMLElementEventMap,
+  F = (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
+  N = Record<string, string>,
+>(attrs: Record<string, string | Function>): [[K, F][], N] {
+  const callbacks: [K, F][] = [];
+
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key.startsWith("on") && typeof value === "function") {
+      delete attrs[key];
+      callbacks.push([key.slice(2) as K, value as F]);
+    }
+  }
+  return [callbacks, attrs as N];
 }
 
 export function html(

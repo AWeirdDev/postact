@@ -1,3 +1,6 @@
+import type { VirtualItem } from "./vdom/structure";
+import { virtualItemToFragment } from "./vdom/client";
+
 class RuntimeError extends Error {
   constructor(reason: string) {
     super(reason);
@@ -16,6 +19,7 @@ interface SelectionUtils {
     event: T,
     handler: (e: HTMLElementEventMap[T]) => void,
   ) => { remove: () => void };
+  render: (vi: VirtualItem) => void;
 }
 
 export function select<T extends HTMLElement>(
@@ -32,6 +36,9 @@ export function select<T extends HTMLElement>(
   result.on = (name, handler) => {
     result.addEventListener(name, handler);
     return { remove: () => result.removeEventListener(name, handler) };
+  };
+  result.render = (vi) => {
+    result.replaceChildren(virtualItemToFragment(vi));
   };
 
   return result as T & SelectionUtils;
