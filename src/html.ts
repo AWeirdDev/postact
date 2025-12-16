@@ -156,6 +156,7 @@ class HTMLParser {
         attributes: attrs,
         children: [],
         listeners,
+        subscribables: [],
       };
     }
 
@@ -170,6 +171,7 @@ class HTMLParser {
       attributes: attrs,
       children,
       listeners,
+      subscribables: [],
     };
   }
 

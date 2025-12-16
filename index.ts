@@ -1,8 +1,8 @@
-import { later, state } from "./src";
+import { later, state, html, select } from "./src";
 
-const $data = later(async () => {
-  return "wowie";
-});
-$data.subscribe((value) => {
-  console.log("value!", value);
-});
+const $count = state(0);
+
+select("#app").render(html`
+  <div>Hello, world!</div>
+  <button onclick=${() => $count.update((v) => v + 1)}>${$count}</button>
+`);
