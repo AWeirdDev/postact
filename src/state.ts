@@ -3,7 +3,7 @@ export type Updater<T> = UpdateDispatch<T> | T;
 
 function getUpdaterValue<T>(current: T, upd: Updater<T>): T {
   // @ts-ignore
-  return typeof upd === "function" ? upd(current) : current;
+  return typeof upd === "function" ? upd(current) : upd;
 }
 
 export type Subscriber<T> = (value: T) => any;
@@ -83,6 +83,7 @@ export class BaseStateManager<T> implements State<T> {
 
   update(upd: Updater<T>): void {
     const value = getUpdaterValue(this.value, upd);
+
     for (const checker of this.#checkers) {
       if (!checker(this.value, value)) return;
     }

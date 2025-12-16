@@ -7,3 +7,4 @@ export {
   type UpdateDispatch,
 } from "./state";
 export { html } from "./html";
+export { later } from "./later";
