@@ -51,12 +51,20 @@ class ParseError extends Error {
     return new ParseError(`${chr} is not a valid html tag character`);
   }
 
+  static invalidCharacterInAttributeName(chr: string): ParseError {
+    return new ParseError(`${chr} is not a valid html attribute character`);
+  }
+
   static expectedQuote(): ParseError {
     return new ParseError('expected double quote (")');
   }
 
   static expectedAttrName(): ParseError {
     return new ParseError("expected attribute name, got empty");
+  }
+
+  static expectedAttrEqual(): ParseError {
+    return new ParseError("expected equal sign (=) right after attribute name");
   }
 
   static expectedTagClosing(): ParseError {
@@ -71,6 +79,10 @@ class ParseError extends Error {
     return new ParseError(
       `the starting and closing tags do not match: \`${starting}\` and \`${closing}\``,
     );
+  }
+
+  static noBackslashBeforeInsert(): ParseError {
+    return new ParseError("there should be no backslash (\\) before ${...}");
   }
 }
 
@@ -213,47 +225,62 @@ class HTMLParser {
     let state: 0 | 1 = 0;
 
     while (true) {
-      const [shouldInsert, chr] = this.consumeWhitespace();
+      const [shouldInsert, chr] = this.next()!;
 
-      if (chr == ">") return [attrs, false, shouldInsert];
+      // stop characters
+      if (chr == ">") {
+        if (name) {
+          attrs[name] = "true";
+        }
+        return [attrs, false, shouldInsert];
+      }
       if (chr == "/") {
         const [_, c] = this.consumeWhitespace();
         if (c !== ">") throw ParseError.expectedTagClosing();
+        if (name) {
+          attrs[name] = "true";
+        }
         return [attrs, true, shouldInsert];
       }
 
       if (state === 0) {
         // attr name
+        // we might be waiting for attr name if there's nothing yet
+        if (!name && chr == " ") continue;
         if (/\s|=/.test(chr)) {
           if (!name) throw ParseError.expectedAttrName();
           // we can now go collect the value
           state = 1;
+          console.log("state 1");
         } else {
           if (shouldInsert) throw ParseError.noInsertInAttrNames();
+          if (!/[a-zA-Z0-9-]/.test(chr))
+            throw ParseError.invalidCharacterInAttributeName(chr);
           name += chr;
+          console.log(name);
           continue;
         }
       }
 
-      // finally not equal, process attr value
-      if (chr == "=") {
-        const value: string | Function | null = shouldInsert
-          ? argToStringOrFn(this.getInsertion()!)
-          : this.consumeStringQuote();
-
-        if (value !== null) {
-          attrs[name] = value;
-        }
-
+      if (chr === " ") {
+        attrs[name] = "true";
         name = "";
         state = 0;
         continue;
       }
-      // otherwise, there's something else, perhaps a new attr
-      // we'll keep this one as "true"
-      attrs[name] = "true";
+      if (chr !== "=") throw ParseError.expectedAttrEqual();
+
+      const value: string | Function | null = shouldInsert
+        ? argToStringOrFn(this.getInsertion()!)
+        : this.consumeStringQuote();
+
+      if (value !== null) {
+        attrs[name] = value;
+      }
+
       name = "";
       state = 0;
+      continue;
     }
   }
 
@@ -301,7 +328,13 @@ class HTMLParser {
 
     while (true) {
       const [shouldInsert, chr] = this.next()!;
-      if (!text.endsWith("\\") && chr == '"') break;
+      if (chr == "\\") {
+        const [nextInsert, nextChr] = this.next()!;
+        if (nextInsert) throw ParseError.noBackslashBeforeInsert();
+        text += "\\" + nextChr;
+        continue;
+      }
+      if (chr == '"') break;
 
       text += chr;
       if (shouldInsert) text += this.getInsertion()!.toString();
