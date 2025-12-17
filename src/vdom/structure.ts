@@ -10,7 +10,19 @@ export interface VirtualElement {
     keyof HTMLElementEventMap,
     (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
   ][];
-  subscribables: Subscribable<any>[];
+  subscribable?: Subscribable<any>;
 }
 
-export type VirtualItem = string | null | undefined | VirtualElement[];
+export interface VirtualTextNode {
+  readonly __postactItem: `virtual-text-node`;
+
+  data: string;
+  subscribable?: Subscribable<any>;
+}
+
+export type VirtualItem =
+  | null
+  | undefined
+  | string
+  | VirtualTextNode
+  | VirtualElement[];

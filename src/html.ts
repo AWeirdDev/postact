@@ -1,5 +1,5 @@
 import type { VirtualElement, VirtualItem } from "./vdom/structure";
-import type { State } from "./state";
+import type { Subscribable } from "./state";
 
 type Argument =
   | null
@@ -7,7 +7,7 @@ type Argument =
   | boolean
   | number
   | string
-  | State<any>
+  | Subscribable<any>
   | VirtualItem
   | Function;
 
@@ -156,7 +156,6 @@ class HTMLParser {
         attributes: attrs,
         children: [],
         listeners,
-        subscribables: [],
       };
     }
 
@@ -171,7 +170,6 @@ class HTMLParser {
       attributes: attrs,
       children,
       listeners,
-      subscribables: [],
     };
   }
 
@@ -354,7 +352,7 @@ class HTMLParser {
   }
 }
 
-function addArgToChildren(insertion: Argument, children: VirtualItem[]) {
+function addArgToChildren(insertion: Argument, children: VirtualItem[]): void {
   switch (identifyArgument(insertion)) {
     case ArgumentType.Empty:
       break;
@@ -365,9 +363,23 @@ function addArgToChildren(insertion: Argument, children: VirtualItem[]) {
 
     case ArgumentType.Subscribable:
       // we'll put the initial value
-      const value = (insertion as State<any>).value;
-      if (typeof value !== "undefined" && value !== null)
-        children.push(value.toString());
+      const state = insertion as Subscribable<any>;
+      const value = state.value;
+
+      if (typeof value !== "undefined" && value !== null) {
+        if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
+          children.push({
+            __postactItem: "virtual-text-node",
+            data: value.toString(),
+            subscribable: state,
+          });
+        } else {
+          // quite possibly some kind of element
+          children.push(value as VirtualElement[]);
+        }
+      } else {
+        children.push();
+      }
       break;
 
     case ArgumentType.VirtualItem:
@@ -389,7 +401,7 @@ function argToStringOrFn(arg: Argument): string | Function | null {
     case ArgumentType.Text:
       return arg!.toString();
     case ArgumentType.Subscribable:
-      return ((arg as State<any>).value || "").toString();
+      return ((arg as Subscribable<any>).value || "").toString();
     case ArgumentType.VirtualItem:
       // this should not be here
       return null;

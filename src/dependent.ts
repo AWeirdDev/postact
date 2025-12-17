@@ -28,9 +28,40 @@ export class Dependent<T, R> implements Subscribable<R> {
   }
 }
 
-export function dependent<T, R>(
+interface DependentEntry {
+  later: <R, T>(
+    state: State<T>,
+    gen: (value: T) => Promise<R>,
+  ) => Dependent<T, R>;
+}
+
+/**
+ * Creates a subscribable `Dependent` object that runs `gen` whenever the `state` updates.
+ * @param state The state to depend upon.
+ * @param gen A function taking a state, then returns a value.
+ *
+ * @example
+ * ```ts
+ * const $count = state<number>(0);
+ * const $calculated = dependent<string>($count, (count) => {
+ *   return (count * 67).toString() // performs some computation
+ * })
+ * ```
+ */
+function _dependent<R, T>(
   state: State<T>,
   gen: (value: T) => R,
 ): Dependent<T, R> {
   return new Dependent(state, gen);
 }
+
+_dependent.later = function <R, T>(
+  state: State<T>,
+  gen: (value: T) => Promise<R>,
+): Dependent<T, R> {
+  // later ill write this lmfao
+};
+
+export const dependent = _dependent as unknown as
+  | DependentEntry
+  | (<R, T>(state: State<T>) => Dependent<T, R>);

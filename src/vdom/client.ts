@@ -1,4 +1,4 @@
-import type { VirtualItem } from "./structure";
+import type { VirtualElement, VirtualItem, VirtualTextNode } from "./structure";
 
 import { ensureWindow } from "../utilities";
 
@@ -11,8 +11,24 @@ function _toFrag(vi: VirtualItem): DocumentFragment {
     return fragment;
   }
 
+  // a text node, which is fine
+  if (
+    Object.hasOwn(vi, "__postactItem") &&
+    // @ts-ignore
+    vi["__postactItem"] == "virtual-text-node"
+  ) {
+    const vtn = vi as VirtualTextNode;
+    const tn = window.document.createTextNode(vtn.data);
+
+    if (vtn.subscribable)
+      vtn.subscribable.subscribe((value) => (tn.textContent = value));
+
+    fragment.appendChild(tn);
+    return fragment;
+  }
+
   // we're left with VirtualElement[]
-  for (const item of vi) {
+  for (const item of vi as VirtualElement[]) {
     const element = window.document.createElement(item.tag);
 
     // attributes
@@ -24,6 +40,17 @@ function _toFrag(vi: VirtualItem): DocumentFragment {
     item.listeners.forEach(([name, listener]) =>
       element.addEventListener(name, listener),
     );
+
+    // subscribables
+    if (item.subscribable)
+      item.subscribable.subscribe((value) => {
+        if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
+          // then we'll keep it simple
+          element.textContent = value.toString();
+        } else {
+          element.replaceChildren(_toFrag(value));
+        }
+      });
 
     // inner children
     element.append(...item.children.map((child) => _toFrag(child)));
