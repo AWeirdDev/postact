@@ -1,33 +1,37 @@
 # postact
-web development for developers who procastinate like i do
+web development without the fucking mess
 
-postact aims to be a somewhat unopinionated library for building robust web applications.
-that way, we can go back to the good old days of no weird ass frameworks... just as  
-jquery intended.
+given your html:
 
-currently you can select elements: -
-
-```ts
-import { select, state } from "postact";
-
-const button = select("button");
-
-// handle counting
-const $count = state(0);
-button.on("click", () => {
-  $count.update(i => i + 1); // there should be a better way tho
-  
-  // render a virtual dom directly
-  button.render([
-    tag: "h1",
-    children: [`${$count}`]
-  ]);
-});
+```html
+<div id="app"></div>
 ```
 
-it's intended to be that kind of simple. so you know... modern web development 
-won't feel that bloated and no one has to obey to some fucking triangle company 
-with their stupid fucking previous js.
+create a counter app:
 
-anyway, if you're interested in this project, consider opening an issue on how
-you think the design could be better. yeah, so i could procastinate more.
+```ts
+function createCounter() {
+  const $count = state(0);
+  
+  function onClick() {
+    $count.update(v => v + 1);
+  }
+  
+  return html`
+    <button onclick=${onClick}>
+        ${$count}
+    </button>
+  `
+}
+
+select("#app").render(createCounter())
+```
+
+this is essentially react but without the mess so shut up nextjs supporters
+
+> [!NOTE]
+> this software is a work-in-progress and does not gurantee the robusticity or a long-term support as of now.
+
+***
+
+(c) 2025 AWeirdDev
