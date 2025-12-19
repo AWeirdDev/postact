@@ -101,12 +101,12 @@ module.exports = {
   // Navigation Structure (Sidebar)
   // Icons are kebab-case names from Lucide Icons (https://lucide.dev/)
   navigation: [
-    { title: "Hello", path: "/", icon: "home" }, // Corresponds to docs/index.md
+    { title: "Home", path: "/", icon: "home" }, // Corresponds to docs/index.md
     {
       title: "Getting Started",
       icon: "rocket",
       path: "#",
-      collapsible: true, // This makes the menu section collapsible
+      collapsible: false,
       children: [
         {
           title: "Documentation",
@@ -141,26 +141,13 @@ module.exports = {
       icon: "github",
       external: true,
     },
-    {
-      title: "Support the Project",
-      path: "https://github.com/sponsors/mgks",
-      icon: "heart",
-      external: true,
-    },
   ],
 
   pageNavigation: true, // Enable previous / next page navigation at the bottom of each page
 
-  // Sponsor Ribbon Configuration
-  Sponsor: {
-    enabled: false,
-    title: "Support docmd",
-    link: "https://github.com/sponsors/mgks",
-  },
-
   // Footer Configuration
   // Markdown is supported here.
-  footer: "© " + new Date().getFullYear() + " Project.",
+  footer: "© " + new Date().getFullYear() + " AWeirdDev",
 
   // Favicon Configuration
   // Path relative to outputDir root

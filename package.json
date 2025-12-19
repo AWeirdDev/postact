@@ -1,5 +1,12 @@
 {
-  "name": "postact",
+  "name": "@ramptix/postact",
+  "version": "0.0.1",
+  "author": {
+    "email": "awdjared@gmail.com",
+    "name": "AWeirdDev",
+    "url": "https://github.com/AWeirdDev"
+  },
+  "license": "MIT",
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -8,6 +15,7 @@
     "docs:dev": "docmd dev",
     "docs:build": "docmd build"
   },
+  "dependencies": {},
   "devDependencies": {
     "@mgks/docmd": "^0.3.2",
     "@testing-library/dom": "^10.4.1",
