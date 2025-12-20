@@ -130,4 +130,4 @@ _dependent.later = function <R, T>(
 
 export const dependent = _dependent as unknown as
   | DependentEntry
-  | (<R, T>(state: State<T>) => Dependent<T, R>);
+  | (<R, T>(state: State<T>, gen: (value: T) => R) => Dependent<T, R>);
