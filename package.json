@@ -6,6 +6,9 @@
     "name": "AWeirdDev",
     "url": "https://github.com/AWeirdDev"
   },
+  "repository": {
+    "url": "https://github.com/AWeirdDev/postact"
+  },
   "license": "MIT",
   "module": "index.ts",
   "moduleResolution": "Bundler",
