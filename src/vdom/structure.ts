@@ -1,4 +1,4 @@
-import type { Subscribable } from "../state";
+import type { Subscribable } from "../subscribable";
 
 export interface VirtualElement {
   readonly __postactItem: `virtual-element`;
