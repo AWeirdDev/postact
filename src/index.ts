@@ -18,4 +18,4 @@ export type {
   VirtualItem,
   VirtualTextNode,
 } from "./vdom/structure";
-export { virtualItemToFragment } from "./vdom/client";
+export { virtualItemsToFragment as virtualItemToFragment } from "./vdom/client";

@@ -13,19 +13,25 @@ export interface Subscribable<T> {
    * @param subscriber The subscriber, taking the current state value as the parameter.
    */
   readonly subscribe: (subscriber: Subscriber<T>) => void;
+
+  readonly unsubscribe: (pointer: Subscriber<T>) => void;
 }
 
 export class BaseSubscribable<T> implements Subscribable<T> {
   value: T;
-  #subscribers: Subscriber<T>[];
+  #subscribers: Map<Subscriber<T>, Subscriber<T>>;
 
   constructor(initial: T) {
     this.value = initial;
-    this.#subscribers = [];
+    this.#subscribers = new Map();
   }
 
-  subscribe(subscriber: Subscriber<T>) {
-    this.#subscribers.push(subscriber);
+  subscribe(subscriber: Subscriber<T>): void {
+    this.#subscribers.set(subscriber, subscriber);
+  }
+
+  unsubscribe(pointer: Subscriber<T>): void {
+    this.#subscribers.delete(pointer);
   }
 
   emit() {

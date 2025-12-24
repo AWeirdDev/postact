@@ -1,9 +1,19 @@
-import type { VirtualElement, VirtualItem, VirtualTextNode } from "./structure";
+import type {
+  VirtualElement,
+  VirtualFragment,
+  VirtualItem,
+  VirtualTextNode,
+} from "./structure";
 
 import { ensureWindow } from "../utilities";
 
+function isPrimitive(value: any): boolean {
+  return ["string", "number", "bigint", "boolean"].includes(typeof value);
+}
+
 function _toFrag(vi: VirtualItem): DocumentFragment {
   const fragment = window.document.createDocumentFragment();
+
   if (vi === null || typeof vi === "undefined") return fragment;
 
   if (typeof vi === "string") {
@@ -11,62 +21,80 @@ function _toFrag(vi: VirtualItem): DocumentFragment {
     return fragment;
   }
 
-  // a text node, which is fine
-  if (
-    Object.hasOwn(vi, "__postactItem") &&
-    // @ts-ignore
-    vi["__postactItem"] == "virtual-text-node"
-  ) {
-    const vtn = vi as VirtualTextNode;
-    const tn = window.document.createTextNode(vtn.data);
+  // a text node
+  if (Object.hasOwn(vi, "__postactItem")) {
+    if (vi["__postactItem"] == "virtual-text-node") {
+      // VirtualTextNode
+      const vtn = vi as VirtualTextNode;
+      const tn = window.document.createTextNode(vtn.data);
 
-    if (vtn.subscribable)
-      vtn.subscribable.subscribe((value: any) => (tn.textContent = value));
+      if (vtn.subscribable)
+        vtn.subscribable.subscribe((value) => {
+          if (isPrimitive(value)) {
+            // then we'll keep it simple
+            tn.textContent = value.toString();
+          } else {
+          }
+        });
 
-    fragment.appendChild(tn);
-    return fragment;
+      fragment.appendChild(tn);
+      return fragment;
+    } else if (vi["__postactItem"] == "virtual-element") {
+      // VirtualElement
+      const element = window.document.createElement(vi.tag);
+
+      // attributes
+      Object.entries(vi.attributes).forEach(([name, value]) =>
+        element.setAttribute(name, value),
+      );
+
+      // listeners
+      vi.listeners.forEach(([name, listener]) =>
+        element.addEventListener(name, listener),
+      );
+
+      // subscribables
+      if (vi.subscribable)
+        vi.subscribable.subscribe((value: any) => {
+          if (isPrimitive(value)) {
+            // then we'll keep it simple
+            element.textContent = value.toString();
+          } else {
+            element.replaceChildren(_toFrag(value));
+          }
+        });
+
+      // inner children
+      element.append(...vi.children.map((child) => _toFrag(child)));
+
+      fragment.appendChild(element);
+      return fragment;
+    }
   }
 
-  // we're left with VirtualElement[]
-  for (const item of vi as VirtualElement[]) {
-    const element = window.document.createElement(item.tag);
+  // we're left with VirtualFragment
+  if (vi.subscribable)
+    vi.subscribable.subscribe((value: any) => {
+      if (isPrimitive(value)) {
+        fragment.textContent = value.toString();
+      } else {
+        const newFrag = (value as VirtualFragment).children.reduce((f, vi) => {
+          f.append(_toFrag(vi));
+          return f;
+        }, window.document.createDocumentFragment());
+        fragment.replaceChildren(newFrag);
+      }
+    });
 
-    // attributes
-    Object.entries(item.attributes).forEach(([name, value]) =>
-      element.setAttribute(name, value),
-    );
-
-    // listeners
-    item.listeners.forEach(([name, listener]) =>
-      element.addEventListener(name, listener),
-    );
-
-    // subscribables
-    if (item.subscribable)
-      item.subscribable.subscribe((value: any) => {
-        if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
-          // then we'll keep it simple
-          element.textContent = value.toString();
-        } else {
-          element.replaceChildren(_toFrag(value));
-        }
-      });
-
-    // inner children
-    element.append(...item.children.map((child) => _toFrag(child)));
-
-    fragment.appendChild(element);
-  }
-
+  fragment.append(...(vi as VirtualFragment).children.map((vi) => _toFrag(vi)));
   return fragment;
 }
 
 /**
  * Converts a virtual DOM to a document fragment for rendering it on the web.
  * @param vi
- * @returns
  */
-export function virtualItemToFragment(vi: VirtualItem): DocumentFragment {
+export function virtualItemsToFragment(vi: VirtualItem): DocumentFragment {
   ensureWindow();
   return _toFrag(vi);
 }

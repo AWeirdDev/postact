@@ -1,5 +1,5 @@
 import type { VirtualItem } from "../vdom/structure";
-import { virtualItemToFragment } from "../vdom/client";
+import { virtualItemsToFragment } from "../vdom/client";
 
 interface SelectionUtils {
   /**
@@ -33,7 +33,7 @@ export function select<T extends HTMLElement>(
     );
 
   result.render = (vi) => {
-    result.replaceChildren(virtualItemToFragment(vi));
+    result.replaceChildren(virtualItemsToFragment(vi));
   };
 
   return result as T & SelectionUtils;

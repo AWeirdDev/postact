@@ -147,6 +147,7 @@ This becomes:
 In the future. Maybe. Okay yeah I will.
 
 - [x] `route()` full context interface
+- [ ] **IMPORTANT: Destroy virtual item API** - Otherwise subscriptions do not die.
 - [ ] Virtual fragment (w/ `subscribables` field) support
 - [ ] Insertions after regular tags
 - [ ] Component-like insertions `<${...}>`

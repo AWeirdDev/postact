@@ -57,12 +57,12 @@ export class BaseStateManager<T> implements State<T> {
   public value: T;
   public readonly __postactItem: "state" = "state";
 
-  #subscribers: Subscriber<T>[];
+  #subscribers: Map<Subscriber<T>, Subscriber<T>>;
   #checkers: Checker<T>[];
 
   constructor(initial: T) {
     this.value = initial;
-    this.#subscribers = [];
+    this.#subscribers = new Map();
     this.#checkers = [];
   }
 
@@ -82,12 +82,16 @@ export class BaseStateManager<T> implements State<T> {
   }
 
   subscribe(subscriber: Subscriber<T>): void {
-    this.#subscribers.push(subscriber);
+    this.#subscribers.set(subscriber, subscriber);
+  }
+
+  unsubscribe(pointer: Subscriber<T>): void {
+    this.#subscribers.delete(pointer);
   }
 
   emit(): void {
     const value = this.value; // value cache
-    this.#subscribers.forEach((subscriber) => subscriber(value));
+    this.#subscribers.forEach((_, subscriber) => subscriber(value));
   }
 
   withChecker(checker: Checker<T>): State<T> {

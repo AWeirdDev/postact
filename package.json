@@ -41,7 +41,7 @@
     "dev": "vite",
     "build": "tsc && rolldown -m -c",
     "docs:init": "docmd init",
-    "docs:dev": "docmd dev",
+    "docs:dev": "docmd dev -c docmd.config.cjs",
     "docs:build": "docmd build"
   },
   "trustedDependencies": [

@@ -39,3 +39,11 @@ function createApp() {
 
 select("#app").render(createApp())
 ```
+
+::: card App
+
+<div data-preview="2">
+<p>Loading preview...</p>
+</div>
+
+:::

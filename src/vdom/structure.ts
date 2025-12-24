@@ -13,6 +13,13 @@ export interface VirtualElement {
   subscribable?: Subscribable<any>;
 }
 
+// abstraction only
+export interface VirtualFragment {
+  readonly __postactItem: `virtual-fragment`;
+  children: VirtualItem[];
+  subscribable?: Subscribable<any>;
+}
+
 export interface VirtualTextNode {
   readonly __postactItem: `virtual-text-node`;
 
@@ -25,4 +32,5 @@ export type VirtualItem =
   | undefined
   | string
   | VirtualTextNode
-  | VirtualElement[];
+  | VirtualElement
+  | VirtualFragment;

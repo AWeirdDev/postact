@@ -6,17 +6,17 @@ export class Dependent<T, R> implements Subscribable<R> {
 
   #gen: (value: T) => R;
   #value: R;
-  #subscribers: Subscriber<R>[];
+  #subscribers: Map<Subscriber<R>, Subscriber<R>>;
 
   constructor(state: State<T>, gen: (value: T) => R) {
     this.#value = gen(state.value);
     this.#gen = gen;
-    this.#subscribers = [];
+    this.#subscribers = new Map();
 
     state.subscribe((current) => {
       const generated = this.#gen(current);
       this.#value = generated;
-      this.#subscribers.forEach((subscriber) => subscriber(generated));
+      this.#subscribers.forEach((_, subscriber) => subscriber(generated));
     });
   }
 
@@ -25,7 +25,11 @@ export class Dependent<T, R> implements Subscribable<R> {
   }
 
   subscribe(subscriber: Subscriber<R>): void {
-    this.#subscribers.push(subscriber);
+    this.#subscribers.set(subscriber, subscriber);
+  }
+
+  unsubscribe(pointer: Subscriber<R>): void {
+    this.#subscribers.delete(pointer);
   }
 }
 
@@ -78,7 +82,7 @@ export class DependentLater<T, R> implements Subscribable<R> {
 
   #gen: (value: T) => Promise<R>;
   #value: R | null;
-  #subscribers: Subscriber<R>[];
+  #subscribers: Map<Subscriber<R>, Subscriber<R>>;
   #waiting: boolean;
 
   constructor(state: State<T>, gen: (value: T) => Promise<R>) {
@@ -90,7 +94,7 @@ export class DependentLater<T, R> implements Subscribable<R> {
     });
 
     this.#gen = gen;
-    this.#subscribers = [];
+    this.#subscribers = new Map();
 
     state.subscribe((current) => {
       this.#value = null;
@@ -98,7 +102,7 @@ export class DependentLater<T, R> implements Subscribable<R> {
       this.#gen(current).then((value) => {
         this.#value = value;
         this.#waiting = false;
-        this.#subscribers.forEach((subscriber) => subscriber(value));
+        this.#subscribers.forEach((_, subscriber) => subscriber(value));
       });
     });
   }
@@ -117,7 +121,11 @@ export class DependentLater<T, R> implements Subscribable<R> {
   }
 
   subscribe(subscriber: Subscriber<R>): void {
-    this.#subscribers.push(subscriber);
+    this.#subscribers.set(subscriber, subscriber);
+  }
+
+  unsubscribe(pointer: Subscriber<R>): void {
+    this.#subscribers.delete(pointer);
   }
 }
 

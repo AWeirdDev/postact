@@ -136,8 +136,8 @@ class HTMLParser {
     return this.#values[this.#tsaIdx - 1] || null;
   }
 
-  consume(): VirtualElement[] {
-    const items: VirtualElement[] = [];
+  consume(): VirtualItem {
+    const children: VirtualItem[] = [];
 
     while (true) {
       const n = this.next();
@@ -147,13 +147,21 @@ class HTMLParser {
 
       if (chr == "<") {
         if (shouldInsert) throw ParseError.noInsertInTagNames();
-        items.push(this.processConsumption());
+        children.push(this.processConsumption());
+      } else if (shouldInsert) {
+        // then it's quite possibly in the end
+        const vi = transformArgToVirtualItem(this.getInsertion()!);
+        if (vi !== null) children.push(vi);
       } else if (!/\s/.test(chr)) {
         throw ParseError.expectedTagOpening();
       }
     }
 
-    return items;
+    // create a fragment
+    return {
+      __postactItem: "virtual-fragment",
+      children,
+    };
   }
 
   processConsumption(): VirtualElement {
@@ -346,7 +354,8 @@ class HTMLParser {
     let text = "";
     const children: VirtualItem[] = [];
 
-    if (afterTagShouldInsert) addArgToChildren(this.getInsertion(), children);
+    if (afterTagShouldInsert)
+      children.push(transformArgToVirtualItem(this.getInsertion()));
 
     while (true) {
       const [shouldInsert, chr] = this.next()!;
@@ -361,7 +370,7 @@ class HTMLParser {
           if (trimmed) children.push(unescape(trimmed));
           text = "";
 
-          children.push([this.processConsumption()]);
+          children.push(this.processConsumption());
           continue;
         }
       }
@@ -374,7 +383,7 @@ class HTMLParser {
         text = "";
 
         const insertion = this.getInsertion();
-        addArgToChildren(insertion, children);
+        children.push(transformArgToVirtualItem(insertion));
       }
     }
 
@@ -384,14 +393,13 @@ class HTMLParser {
   }
 }
 
-function addArgToChildren(insertion: Argument, children: VirtualItem[]): void {
+function transformArgToVirtualItem(insertion: Argument): VirtualItem {
   switch (identifyArgument(insertion)) {
     case ArgumentType.Empty:
-      break;
+      return null;
 
     case ArgumentType.Text:
-      children.push(insertion!.toString());
-      break;
+      return insertion!.toString();
 
     case ArgumentType.Subscribable:
       // we'll put the initial value
@@ -400,29 +408,39 @@ function addArgToChildren(insertion: Argument, children: VirtualItem[]): void {
 
       if (typeof value !== "undefined" && value !== null) {
         if (["string", "number", "bigint", "boolean"].includes(typeof value)) {
-          children.push({
+          return {
             __postactItem: "virtual-text-node",
             data: value.toString(),
             subscribable: state,
-          });
+          };
         } else {
           // quite possibly some kind of element
-          children.push(value as VirtualElement[]);
+          return {
+            __postactItem: "virtual-element",
+            tag: "",
+            attributes: {},
+            children: value as VirtualItem[],
+            listeners: [],
+            subscribable: value,
+          };
         }
       } else {
-        children.push();
+        return {
+          __postactItem: "virtual-text-node",
+          data: "",
+          subscribable: state,
+        };
       }
-      break;
 
     case ArgumentType.VirtualItem:
-      children.push(insertion as VirtualItem);
-      break;
+      return insertion as VirtualItem;
+
     case ArgumentType.Function:
       // similar to states, we'll do an initial render
       const fValue = (insertion as Function)();
       if (typeof fValue !== "undefined" && fValue !== null)
-        children.push(fValue.toString());
-      break;
+        return fValue.toString();
+      return null;
   }
 }
 
