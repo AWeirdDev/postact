@@ -1,7 +1,6 @@
 import {
   createVf,
   createVtn,
-  isVf,
   type VirtualElement,
   type VirtualItem,
 } from "./vdom/structure";
@@ -262,7 +261,7 @@ class HTMLParser {
       if (state === 0) {
         // attr name
         // we might be waiting for attr name if there's nothing yet
-        if (!name && chr == " ") continue;
+        if (!name && (/\s/.test(chr) || !chr)) continue;
         if (/\s|=/.test(chr)) {
           if (!name) throw ParseError.expectedAttrName();
           // we can now go collect the value
