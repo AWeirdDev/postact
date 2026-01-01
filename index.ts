@@ -1,12 +1,63 @@
-import { select, html, type VirtualItem, state, dependent, css } from "./src";
+import {
+  select,
+  html,
+  type VirtualItem,
+  state,
+  dependent as d,
+  css,
+} from "./src";
 
 function createApp(): VirtualItem {
   const $count = state(0);
 
-  return html`<div>
-      hello, world! my name is walter hartwell white ${$count}
+  function handleOnClick() {
+    $count.update((v) => v + 1);
+  }
+
+  const stylesheet = css`
+    .center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 90vh;
+    }
+
+    h1,
+    p,
+    button {
+      font-family: sans-serif;
+    }
+
+    button {
+      font-size: 16px;
+      width: 100px;
+      height: 40px;
+    }
+  `;
+  const bigger = css({ fontSize: "20px" });
+
+  return html`
+    <div class="center">
+      <style>
+        ${stylesheet}
+      </style>
+      <h1>Postact</h1>
+      <p>
+        Postact is a simple, cross-platform library designed to build reactive
+        apps.
+      </p>
+      <p>
+        You can try it out in <code>index.ts</code>. Then, just see the magic
+        happens.
+      </p>
+      <button onclick=${handleOnClick}>
+        ${d($count, (v) =>
+          v > 0 ? html`<b style=${bigger}>${v}</b>` : "Click me!",
+        )}
+      </button>
     </div>
-    <button onclick=${() => $count.update((v) => v + 1)}>add</button>`;
+  `;
 }
 
 select("#app").render(createApp());
