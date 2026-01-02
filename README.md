@@ -5,6 +5,10 @@ Postact is a semi-opinionated yet minimalist library (and a potential framework)
 - **States (subscribables)** — with `state`, `dependent`, `later`.
   There are also utilities to help you build your web app even faster, just like in vanilla Javascript.
 
+```sh
+$ npm i @postact/core
+```
+
 ## At a glance
 
 If you have your HTML prepared:
@@ -20,7 +24,7 @@ import {
   select,
   state
   html,
-} from "@ramptix/postact";
+} from "@postact/core";
 
 function createApp() {
   const $count = state(0);
