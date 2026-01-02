@@ -2,15 +2,13 @@ import {
   isVe,
   isVf,
   isVtn,
-  type VirtualFragment,
   type VirtualItem,
   type VirtualTextNode,
 } from "./structure";
 
 import { ensureWindow, isPrimitive } from "../utilities";
-import { transformArgToVirtualItem } from "../html";
 
-import { Maybe, PostactIdentifier, simpleRandString } from "../_internals";
+import { simpleRandString } from "../_internals";
 
 function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   const fragment = window.document.createDocumentFragment();

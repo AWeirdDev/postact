@@ -1,6 +1,6 @@
 {
-  "name": "@ramptix/postact",
-  "version": "0.0.3",
+  "name": "@postact/core",
+  "version": "0.0.4",
   "author": {
     "email": "awdjared@gmail.com",
     "name": "AWeirdDev",
@@ -10,16 +10,22 @@
     "url": "https://github.com/AWeirdDev/postact"
   },
   "module": "index.ts",
+  "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@mgks/docmd": "^0.3.2",
+    "@postact/core": "^0.0.4",
+    "@shikijs/vitepress-twoslash": "^3.20.0",
     "@testing-library/dom": "^10.4.1",
     "@types/bun": "latest",
     "@vitest/ui": "^4.0.9",
     "jsdom": "^27.2.0",
+    "remark-shiki-twoslash": "^3.1.3",
     "rolldown": "^1.0.0-beta.55",
+    "shiki": "^3.20.0",
     "vite": "^7.2.2",
+    "vitepress": "^2.0.0-alpha.15",
     "vitest": "^4.0.9"
   },
+  "dependencies": {},
   "peerDependencies": {
     "typescript": "^5"
   },
@@ -40,12 +46,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && rolldown -m -c",
-    "docs:init": "docmd init",
-    "docs:dev": "docmd dev -c docmd.config.cjs",
-    "docs:build": "docmd build"
+    "docs:dev": "bun --bun vitepress dev docs",
+    "docs:build": "bun --bun vitepress build docs",
+    "docs:preview": "bun --bun vitepress preview docs"
   },
-  "trustedDependencies": [
-    "@mgks/docmd"
-  ],
-  "types": "./dist/index.d.ts"
+  "trustedDependencies": []
 }

@@ -57,11 +57,24 @@ export enum PostactIdentifier {
 }
 
 /**
+ * Check if `item` is part of the postact ecosystem.
+ * @param item The item to check.
+ * @returns
+ */
+export function isPostactEcosystem(
+  item: any,
+): item is { __p: PostactIdentifier } {
+  if (item === null) return false;
+  if (typeof item === "object" && Object.hasOwn(item, "__p")) return true;
+  return false;
+}
+
+/**
  * Check if `item` has a postact identifier of `ident`.
  * @param ident The Postact identifier to check.
  * @param item The item to check.
  */
-export function isPostact<K extends PostactIdentifier>(
+export function isPostactIdent<K extends PostactIdentifier>(
   ident: K,
   item: any,
 ): item is K {

@@ -147,9 +147,9 @@ This becomes:
 In the future. Maybe. Okay yeah I will.
 
 - [x] `route()` full context interface
-- [ ] **IMPORTANT: Rewrite `vdom/client.ts`**
-- [ ] Virtual fragment (w/ `subscribables` field) support
-- [ ] Insertions after regular tags
+- [x] **IMPORTANT: Rewrite `vdom/client.ts`**
+- [x] Virtual fragment (w/ `subscribables` field) support
+- [x] Insertions after regular tags
 - [ ] Component-like insertions `<${...}>`
 - [ ] Classes support
 - [ ] Style support

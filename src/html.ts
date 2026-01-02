@@ -6,41 +6,8 @@ import {
 } from "./vdom/structure";
 import type { Subscribable } from "./subscribable";
 import { isPrimitive, unescape } from "./utilities";
-import { PostactIdentifier } from "./_internals";
-import { isState } from "./state";
-import { isDependent } from "./dependent";
-
-type Argument =
-  | null
-  | undefined
-  | boolean
-  | number
-  | bigint
-  | string
-  | Subscribable<any>
-  | VirtualItem
-  | Function;
-
-enum ArgumentType {
-  Empty,
-  Text,
-  Subscribable,
-  VirtualItem,
-  Function,
-}
-
-function identifyArgument(arg: Argument): ArgumentType {
-  if (arg === null || typeof arg === "undefined") return ArgumentType.Empty;
-  if (typeof arg === "function") return ArgumentType.Function;
-
-  if (isPrimitive(arg)) return ArgumentType.Text;
-
-  if (isState(arg) || isDependent(arg)) {
-    return ArgumentType.Subscribable;
-  }
-
-  return ArgumentType.VirtualItem;
-}
+import { isPostactEcosystem, PostactIdentifier } from "./_internals";
+import { ArgumentType, identifyArgument, type Argument } from "./argument";
 
 class ParseError extends Error {
   constructor(reason: string) {
@@ -428,12 +395,18 @@ export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
     case ArgumentType.Function:
       // similar to states, we'll do an initial render
       const fValue = (insertion as Function)();
-      if (typeof fValue !== "undefined" && fValue !== null)
-        return fValue.toString();
-      return null;
+      if (typeof fValue === "undefined" || fValue === null) return null;
+      if (isPrimitive(fValue)) return createVtn(fValue.toString());
+      if (!isPostactEcosystem(fValue))
+        throw new Error(
+          `unresolvable value in children after function calling. value: ${fValue}`,
+        );
+
+      return fValue as VirtualItem;
   }
 }
 
+// this is only called for resolving attributes
 function argToStringOrFn(arg: Argument): string | Function | null {
   switch (identifyArgument(arg)) {
     case ArgumentType.Empty:

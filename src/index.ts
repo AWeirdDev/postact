@@ -12,6 +12,7 @@ export { later } from "./later";
 export type { Subscriber, Subscribable } from "./subscribable";
 
 export { html } from "./html";
+export { css } from "./css";
 
 // routes support
 export { route } from "./routes";

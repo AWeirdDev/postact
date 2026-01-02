@@ -1,4 +1,4 @@
-import { isPostact, PostactIdentifier } from "../_internals";
+import { isPostactIdent, PostactIdentifier } from "../_internals";
 import type { Subscribable } from "../subscribable";
 
 export interface VirtualElement {
@@ -15,7 +15,7 @@ export interface VirtualElement {
 }
 
 export function isVe(item: any): item is VirtualElement {
-  return isPostact(PostactIdentifier.VirtualElement, item);
+  return isPostactIdent(PostactIdentifier.VirtualElement, item);
 }
 
 // abstraction only
@@ -26,7 +26,7 @@ export interface VirtualFragment {
 }
 
 export function isVf(item: any): item is VirtualFragment {
-  return isPostact(PostactIdentifier.VirtualFragment, item);
+  return isPostactIdent(PostactIdentifier.VirtualFragment, item);
 }
 
 /**
@@ -51,7 +51,7 @@ export interface VirtualTextNode {
 }
 
 export function isVtn(item: any): item is VirtualTextNode {
-  return isPostact(PostactIdentifier.VirtualTextNode, item);
+  return isPostactIdent(PostactIdentifier.VirtualTextNode, item);
 }
 
 /**

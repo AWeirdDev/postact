@@ -1,81 +1,44 @@
 import type { Subscribable, Subscriber } from "./subscribable";
-import type { State } from "./state";
 
-import { isPostact, PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "./_internals";
 
-export class Dependent<T, R> implements Subscribable<R> {
+type WrapTupleWithSubscribables<T extends readonly unknown[]> = {
+  [K in keyof T]: Subscribable<T[K]>;
+};
+
+export class Dependent<const T extends readonly unknown[], R>
+  implements Subscribable<R>
+{
   public __p: PostactIdentifier.Dependent = PostactIdentifier.Dependent;
 
-  #gen: (value: T) => R;
+  #gen: (values: T) => R;
   #value: R;
   #subscribers: Map<Subscriber<R>, Subscriber<R>>;
 
-  constructor(state: State<T>, gen: (value: T) => R) {
-    this.#value = gen(state.value);
+  constructor(arg0: WrapTupleWithSubscribables<T> | any, gen: (value: T) => R) {
+    this.#value = gen(
+      Array.isArray(arg0) ? (arg0.map((itm) => itm.value) as any) : arg0,
+    );
     this.#gen = gen;
     this.#subscribers = new Map();
 
-    state.subscribe((current) => {
-      const generated = this.#gen(current);
-      this.#value = generated;
-      this.#subscribers.forEach((_, subscriber) => subscriber(generated));
-    });
-  }
-
-  get value(): R {
-    return this.#value;
-  }
-
-  subscribe(subscriber: Subscriber<R>): void {
-    this.#subscribers.set(subscriber, subscriber);
-  }
-
-  unsubscribe(pointer: Subscriber<R>): void {
-    this.#subscribers.delete(pointer);
-  }
-}
-
-export class DependentLater<T, R> implements Subscribable<R> {
-  public __p: PostactIdentifier.Dependent = PostactIdentifier.Dependent;
-
-  #gen: (value: T) => Promise<R>;
-  #value: R | null;
-  #subscribers: Map<Subscriber<R>, Subscriber<R>>;
-  #waiting: boolean;
-
-  constructor(state: State<T>, gen: (value: T) => Promise<R>) {
-    this.#value = null;
-    this.#waiting = true;
-
-    gen(state.value).then((value) => {
-      this.#value = value;
-      this.#waiting = false;
-    });
-
-    this.#gen = gen;
-    this.#subscribers = new Map();
-
-    state.subscribe((current) => {
-      this.#value = null;
-      this.#waiting = true;
-      this.#gen(current).then((value) => {
-        this.#value = value;
-        this.#waiting = false;
-        this.#subscribers.forEach((_, subscriber) => subscriber(value));
+    if (Array.isArray(arg0))
+      arg0.forEach((subscribable) => {
+        subscribable.subscribe((current: any) => {
+          const generated = this.#gen(arg0.map((itm) => itm.value) as any);
+          this.#value = generated;
+          this.#subscribers.forEach((_, subscriber) => subscriber(generated));
+        });
       });
-    });
-  }
-
-  /**
-   * Checks whether or not the promise has been fulfilled.
-   * **Always check `ok` before using `.value`.**
-   */
-  get ok(): boolean {
-    return !this.#waiting;
+    else
+      arg0.subscribe((current: any) => {
+        const generated = this.#gen(arg0.value);
+        this.#value = generated;
+        this.#subscribers.forEach((_, subscriber) => subscriber(generated));
+      });
   }
 
   get value(): R {
-    // @ts-ignore lol
     return this.#value;
   }
 
@@ -89,53 +52,32 @@ export class DependentLater<T, R> implements Subscribable<R> {
 }
 
 /**
- * Creates a subscribable `Dependent` object that runs `gen` whenever the `state` updates.
- * @param state The state to depend upon.
- * @param gen A function taking a state, then returns a value.
- *
- * @example
- * ```ts
- * const $count = state<number>(0);
- * const $calculated = dependent<string>($count, (count) => {
- *   return (count * 67).toString() // performs some computation
- * })
- * ```
+ * Creates a {@link Subscribable} that reruns `fn` whenever `subscribable` updates.
+ * @param subscribable One subscribable.
+ * @param fn The function, taking the current subscribable value as the argument.
  */
-export function dependent<R, T>(
-  state: State<T>,
-  gen: (value: T) => R,
-): Dependent<T, R> {
-  return new Dependent(state, gen);
-}
+export function dependent<R, K>(
+  subscribable: Subscribable<K>,
+  fn: (args: K) => R,
+): Dependent<[K], R>;
 
 /**
- * Creates a subscribable `DependentLater` object that runs an asynchronous `gen` whenever the `state` updates.
- * @param state The state to depend upon.
- * @param gen An asynchronous function taking a state, then returns a value.
- *
- * @example
- * ```ts
- * const $count = state<number>(0);
- * const $calculated = dependent.later<string>($count, async (count) => {
- *   return (count * 67).toString() // performs some computation
- * })
- *
- * if ($calculated.ok) {
- *   console.log($calculated.value);
- * }
- * ```
+ * Creates a {@link Subscribable} that reruns `fn` whenever any of `subscribables` updates.
+ * @param subscribables Multiple subscribables.
+ * @param fn The function, taking all the current subscribable values in an array as the argument.
  */
-dependent.later = function <R, T>(
-  state: State<T>,
-  gen: (value: T) => Promise<R>,
-): DependentLater<T, R> {
-  return new DependentLater(state, gen);
-};
+export function dependent<R, T extends readonly unknown[]>(
+  subscribables: WrapTupleWithSubscribables<T>,
+  fn: (args: T) => R,
+): Dependent<T, R>;
+
+/**
+ * Dependents.
+ */
+export function dependent(arg0: any, fn: any) {
+  return new Dependent(arg0, fn);
+}
 
 export function isDependent(item: any): item is Dependent<any, any> {
-  return isPostact(PostactIdentifier.Dependent, item);
-}
-
-export function isDependentLater(item: any): item is DependentLater<any, any> {
-  return item instanceof DependentLater;
+  return isPostactIdent(PostactIdentifier.Dependent, item);
 }

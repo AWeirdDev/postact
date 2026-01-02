@@ -1,4 +1,4 @@
-import { PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "./_internals";
 
 /**
  * Gets the CSS property name.
@@ -34,6 +34,10 @@ function getName(key: string): string {
  */
 export interface CSSPaper {
   __p: PostactIdentifier.CSSPaper;
+
+  /**
+   * The inner CSS.
+   */
   inner: string;
 }
 
@@ -57,4 +61,8 @@ export function css(
       ),
     };
   }
+}
+
+export function isCSSPaper(item: any): item is PostactIdentifier.CSSPaper {
+  return isPostactIdent(PostactIdentifier.CSSPaper, item);
 }

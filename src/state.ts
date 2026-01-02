@@ -1,4 +1,4 @@
-import { isPostact, PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "./_internals";
 import type { Subscribable, Subscriber } from "./subscribable";
 
 export type UpdateDispatch<T> = (current: T) => T;
@@ -118,5 +118,5 @@ export function state<T, Q = Exclude<T, Function>>(initial: Q): State<Q> {
 }
 
 export function isState(item: any): item is State<any> {
-  return isPostact(PostactIdentifier.State, item);
+  return isPostactIdent(PostactIdentifier.State, item);
 }
