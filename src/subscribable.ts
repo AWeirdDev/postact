@@ -1,3 +1,5 @@
+import { isPostactIdent, PostactIdentifier } from "./_internals";
+
 export type Subscriber<T> = (value: T) => any;
 
 export interface Subscribable<T> {
@@ -61,4 +63,16 @@ export class BaseSubscribable<T> implements Subscribable<T> {
     const value = this.value; // cache
     this.#subscribers.forEach((sub) => sub(value));
   }
+}
+
+/**
+ * Check if `item` is a subscribable.
+ * @param item The item to check.
+ * @returns
+ */
+export function isSubscribable(item: any): item is Subscribable<any> {
+  return (
+    isPostactIdent(PostactIdentifier.Dependent, item) ||
+    isPostactIdent(PostactIdentifier.State, item)
+  );
 }

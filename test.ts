@@ -1,11 +1,10 @@
-import { html, state, type VirtualItem } from "./src";
+import { state, text } from "./src";
 
-function Counter(): VirtualItem {
-  const $count = state(0);
+const $count = state(0);
+const $label = text`Current: ${$count}`;
 
-  return html`<button onclick=${() => $count.update((v) => v + 1)}>
-    ${$count}
-  </button>`;
-}
+console.log($label.value); // "Current: 0"
 
-html`<${Counter} />`;
+// Now we update the $count
+$count.update(1);
+console.log($label.value); // "Current: 1

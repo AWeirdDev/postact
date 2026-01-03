@@ -13,6 +13,7 @@ export type { Subscriber, Subscribable } from "./subscribable";
 
 export { html } from "./html";
 export { css } from "./css";
+export { text } from "./text";
 
 // routes support
 export { route } from "./routes";

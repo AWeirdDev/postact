@@ -1,8 +1,5 @@
 import { isPrimitive } from "./utilities";
-
-import { isDependent } from "./dependent";
-import { isState } from "./state";
-import type { Subscribable } from "./subscribable";
+import { isSubscribable, type Subscribable } from "./subscribable";
 
 import type { VirtualItem } from "./vdom/structure";
 
@@ -35,7 +32,7 @@ export function identifyArgument(arg: Argument): ArgumentType {
 
   if (isPrimitive(arg)) return ArgumentType.Text;
 
-  if (isState(arg) || isDependent(arg)) {
+  if (isSubscribable(arg)) {
     return ArgumentType.Subscribable;
   }
 
