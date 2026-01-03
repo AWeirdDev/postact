@@ -438,7 +438,7 @@ function filterListenersFromAttributes<
   K = keyof HTMLElementEventMap,
   F = (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
   A = Attributes,
->(attrs: Record<string, string | Function>): [[K, F][], A] {
+>(attrs: Record<string, AttributeValue | Function>): [[K, F][], A] {
   const callbacks: [K, F][] = [];
 
   for (const [key, value] of Object.entries(attrs)) {
@@ -447,7 +447,7 @@ function filterListenersFromAttributes<
       callbacks.push([key.slice(2) as K, value as F]);
     }
   }
-  return [callbacks, attrs as N];
+  return [callbacks, attrs as A];
 }
 
 /**

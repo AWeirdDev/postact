@@ -2,7 +2,7 @@ import { isPostactIdent, PostactIdentifier } from "../_internals";
 import type { Subscribable } from "../subscribable";
 
 type _Any = number | string | boolean | null | undefined;
-export type AttributeValue = _Any | Subscribable<_Any>;
+export type AttributeValue = _Any | string | Subscribable<_Any>;
 export type Attributes = Record<string, AttributeValue>;
 
 export interface VirtualElement {

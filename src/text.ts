@@ -26,48 +26,63 @@ export function text(
     if (isSubscribable(arg)) acc.push(arg);
     return acc;
   }, [] as Subscribable<any>[]);
-
-  return dependent<string, any>(deps, () => {
-    let i = 0;
-    let s = "";
-
-    while (i < tsa.length) {
-      if (i - 1 >= 0) {
-        const arg = args[i - 1];
-        switch (identifyArgument(arg)) {
-          case ArgumentType.Empty:
-            break;
-
-          case ArgumentType.Text:
-            s += arg!.toString();
-            break;
-
-          case ArgumentType.Subscribable:
-            s += anyToString((arg as Subscribable<any>).value);
-            break;
-
-          case ArgumentType.VirtualItem:
-            s += anyToString(arg);
-            break;
-
-          case ArgumentType.Function:
-            s += anyToString((arg as Function)());
-            break;
-        }
-      }
-
-      s += tsa[i];
-      i += 1;
-    }
-
-    return s;
-  });
+  return textWithDefault(deps, tsa, args);
 }
 
 /**
- * Convert any item to a string.
+ * (internal, reserved)
  */
-function anyToString(item: any): string {
+export function textWithDefault(
+  deps: Subscribable<any>[],
+  tsa: TemplateStringsArray,
+  args: Argument[],
+  set?: string,
+): Subscribable<string> {
+  return dependent<string, any>(
+    deps,
+    () => {
+      let i = 0;
+      let s = "";
+
+      while (i < tsa.length) {
+        if (i - 1 >= 0) {
+          const arg = args[i - 1];
+          switch (identifyArgument(arg)) {
+            case ArgumentType.Empty:
+              break;
+
+            case ArgumentType.Text:
+              s += arg!.toString();
+              break;
+
+            case ArgumentType.Subscribable:
+              s += anyToString((arg as Subscribable<any>).value);
+              break;
+
+            case ArgumentType.VirtualItem:
+              s += anyToString(arg);
+              break;
+
+            case ArgumentType.Function:
+              s += anyToString((arg as Function)());
+              break;
+          }
+        }
+
+        s += tsa[i];
+        i += 1;
+      }
+
+      return s;
+    },
+    set,
+  );
+}
+
+/**
+ * (internal) Convert any item to a string.
+ */
+export function anyToString(item: any): string {
   if (typeof item === "undefined" || item === null) return "";
   if (isPrimitive(item)) return item.toString();
   return JSON.stringify(item);

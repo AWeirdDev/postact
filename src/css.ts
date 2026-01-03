@@ -1,4 +1,6 @@
 import { isPostactIdent, PostactIdentifier } from "./_internals";
+import { isSubscribable, type Subscribable } from "./subscribable";
+import { anyToString, text, textWithDefault } from "./text";
 
 /**
  * Gets the CSS property name.
@@ -28,39 +30,21 @@ function getName(key: string): string {
   }
 }
 
-/**
- * A CSS sheet. The term "paper" is used just to differentiate this from
- * {@link CSSStyleSheet}.
- */
-export interface CSSPaper {
-  __p: PostactIdentifier.CSSPaper;
-
-  /**
-   * The inner CSS.
-   */
-  inner: string;
-}
+type _AnyCSSValue = string | number;
+type StyleDeclaration = {
+  [K in keyof CSSStyleDeclaration]:
+    | CSSStyleDeclaration[K]
+    | Subscribable<CSSStyleDeclaration[K]>;
+};
 
 export function css(
-  arg0: Partial<CSSStyleDeclaration> | TemplateStringsArray,
-  ...args: string[]
-): CSSPaper {
-  if (Array.isArray(arg0)) {
-    return {
-      __p: PostactIdentifier.CSSPaper,
-      inner: arg0
-        .reduce((accu, current, idx) => accu + current + args[idx], "")
-        .trim(),
-    };
-  } else {
-    return {
-      __p: PostactIdentifier.CSSPaper,
-      inner: Object.entries(arg0).reduce(
-        (acc, [k, v]) => acc + `${getName(k)}: ${v};`,
-        "",
-      ),
-    };
-  }
+  arg0: Partial<StyleDeclaration> | TemplateStringsArray,
+  ...args: (_AnyCSSValue | Subscribable<_AnyCSSValue>)[]
+): string | Subscribable<string> {
+  throw new Error(
+    "CSS is not supported yet, but it will be in future versions. " +
+      "In the meantime, you could use text`...` instead, there's just no highlighting.",
+  );
 }
 
 export function isCSSPaper(item: any): item is PostactIdentifier.CSSPaper {
