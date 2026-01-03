@@ -1,12 +1,16 @@
 import { isPostactIdent, PostactIdentifier } from "../_internals";
 import type { Subscribable } from "../subscribable";
 
+type _Any = number | string | boolean | null | undefined;
+export type AttributeValue = _Any | Subscribable<_Any>;
+export type Attributes = Record<string, AttributeValue>;
+
 export interface VirtualElement {
   readonly __p: PostactIdentifier.VirtualElement;
 
   tag: string;
   children: VirtualItem[];
-  attributes: Record<string, string>;
+  attributes: Attributes;
   listeners: [
     keyof HTMLElementEventMap,
     (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,

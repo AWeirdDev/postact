@@ -2,6 +2,7 @@ import {
   isVe,
   isVf,
   isVtn,
+  type AttributeValue,
   type VirtualItem,
   type VirtualTextNode,
 } from "./structure";
@@ -9,6 +10,7 @@ import {
 import { ensureWindow, isPrimitive } from "../utilities";
 
 import { simpleRandString } from "../_internals";
+import { isSubscribable } from "../subscribable";
 
 function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   const fragment = window.document.createDocumentFragment();
@@ -53,13 +55,22 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   }
 
   if (isVe(vi)) {
-    // VirtualElement
+    // element (VirtualElement)
     const element = window.document.createElement(vi.tag);
 
     // attributes
-    Object.entries(vi.attributes).forEach(([name, value]) =>
-      element.setAttribute(name, value),
-    );
+    Object.entries(vi.attributes).forEach(([name, value]) => {
+      if (typeof value === "undefined" || value === null) return;
+
+      if (isSubscribable(value)) {
+        value.subscribe((newValue) => {
+          resolveAttribute(element, name, newValue);
+        });
+        return resolveAttribute(element, name, value.value);
+      }
+
+      element.setAttribute(name, value.toString());
+    });
 
     // listeners
     vi.listeners.forEach(([name, listener]) =>
@@ -81,7 +92,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   }
 
   if (isVf(vi)) {
-    // we're left with VirtualFragment
+    // fragment (VirtualFragment)
     const toInsert = vi.children.reduce((frag, vi) => {
       frag.append(_toFrag(vi, options));
       return frag;
@@ -155,6 +166,18 @@ class FragmentSpread {
 
     this.#parent.insertBefore(items, this.#end);
   }
+}
+
+function resolveAttribute(
+  element: HTMLElement,
+  name: string,
+  value: AttributeValue,
+) {
+  // According to mdn, if the specified attribute does not exist,
+  // `removeAttribute()` returns without generating an error.
+  if (typeof value === "undefined" || value === null)
+    element.removeAttribute(name);
+  else element.setAttribute(name, value.toString());
 }
 
 export interface ToFragOptions {

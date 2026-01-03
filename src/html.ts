@@ -1,6 +1,8 @@
 import {
   createVf,
   createVtn,
+  type Attributes,
+  type AttributeValue,
   type VirtualElement,
   type VirtualItem,
 } from "./vdom/structure";
@@ -171,7 +173,12 @@ class HTMLParser {
   /**
    * @returns `[(tag name), (attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeTag(): [string, Record<string, string | Function>, boolean, boolean] {
+  consumeTag(): [
+    string,
+    Record<string, AttributeValue | Function>,
+    boolean,
+    boolean,
+  ] {
     let tag = "";
     while (true) {
       const [shouldInsert, chr] = this.next()!;
@@ -196,8 +203,12 @@ class HTMLParser {
    *
    * @returns `[(attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeAttributes(): [Record<string, string | Function>, boolean, boolean] {
-    const attrs: Record<string, string | Function> = {};
+  consumeAttributes(): [
+    Record<string, AttributeValue | Function>,
+    boolean,
+    boolean,
+  ] {
+    const attrs: Record<string, AttributeValue | Function> = {};
     let name = "";
 
     /**
@@ -250,8 +261,8 @@ class HTMLParser {
       }
       if (chr !== "=") throw ParseError.expectedAttrEqual();
 
-      const value: string | Function | null = shouldInsert
-        ? argToStringOrFn(this.getInsertion()!)
+      const value: AttributeValue | Function | null = shouldInsert
+        ? argToAttrValueOrFn(this.getInsertion()!)
         : this.consumeStringQuote();
 
       if (value !== null) {
@@ -407,14 +418,14 @@ export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
 }
 
 // this is only called for resolving attributes
-function argToStringOrFn(arg: Argument): string | Function | null {
+function argToAttrValueOrFn(arg: Argument): AttributeValue | Function | null {
   switch (identifyArgument(arg)) {
     case ArgumentType.Empty:
       return null;
     case ArgumentType.Text:
       return arg!.toString();
     case ArgumentType.Subscribable:
-      return ((arg as Subscribable<any>).value || "").toString();
+      return arg as Subscribable<any>;
     case ArgumentType.VirtualItem:
       // this should not be here
       return null;
@@ -426,8 +437,8 @@ function argToStringOrFn(arg: Argument): string | Function | null {
 function filterListenersFromAttributes<
   K = keyof HTMLElementEventMap,
   F = (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
-  N = Record<string, string>,
->(attrs: Record<string, string | Function>): [[K, F][], N] {
+  A = Attributes,
+>(attrs: Record<string, string | Function>): [[K, F][], A] {
   const callbacks: [K, F][] = [];
 
   for (const [key, value] of Object.entries(attrs)) {

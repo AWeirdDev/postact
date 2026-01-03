@@ -7,4 +7,4 @@ console.log($label.value); // "Current: 0"
 
 // Now we update the $count
 $count.update(1);
-console.log($label.value); // "Current: 1
+console.log($label.value); // "Current: 1"
