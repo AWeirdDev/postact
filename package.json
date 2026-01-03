@@ -1,6 +1,6 @@
 {
   "name": "@postact/core",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": {
     "email": "awdjared@gmail.com",
     "name": "AWeirdDev",
@@ -9,7 +9,8 @@
   "repository": {
     "url": "https://github.com/AWeirdDev/postact"
   },
-  "module": "index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "devDependencies": {
     "@postact/core": "^0.0.4",
