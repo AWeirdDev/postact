@@ -32,3 +32,35 @@
     color: var(--vp-button-brand-active-text);
     background-color: var(--vp-button-brand-active-bg);
 }
+
+.postact-input {
+    border-color: var(--vp-input-brand-border);
+    color: var(--vp-input-brand-text);
+    background-color: var(--vp-c-bg-alt);
+    border-radius: 20px;
+    padding: 0 16px;
+    line-height: 38px;
+    font-size: 14px;
+    display: inline-block;
+    border: 1px solid transparent;
+    text-align: left;
+    font-weight: 500;
+    outline: none;
+    white-space: nowrap;
+    transition:
+        color 0.25s,
+        border-color 0.25s,
+        background-color 0.25s,
+        box-shadow 0.25s;
+}
+
+.postact-input:hover {
+    border-color: var(--vp-input-brand-hover-border);
+    background-color: var(--vp-input-brand-hover-bg);
+}
+
+.postact-input:focus {
+    border-color: var(--vp-input-brand-focus-border);
+    background-color: var(--vp-input-brand-focus-bg);
+    box-shadow: 0 0 0 1px var(--vp-input-brand-focus-border);
+}

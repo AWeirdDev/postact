@@ -20,6 +20,10 @@ export default defineConfig({
             text: "Introduction",
             link: "/intro",
           },
+          {
+            text: "States",
+            link: "/states",
+          },
         ],
       },
     ],
