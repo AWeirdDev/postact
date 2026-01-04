@@ -5,6 +5,7 @@ import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
 export default defineConfig({
   title: "Postact",
   description: "Simple web dev.",
+  base: "/postact/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
