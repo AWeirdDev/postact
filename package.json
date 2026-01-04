@@ -30,12 +30,6 @@
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs"
-    }
-  },
   "declaration": true,
   "declarationMap": true,
   "files": [
