@@ -155,6 +155,6 @@ In the future. Maybe. Okay yeah I will.
 - [x] Virtual fragment (w/ `subscribables` field) support
 - [x] Insertions after regular tags
 - [ ] Component-like insertions `<${...}>`
+- [ ] References (`ref`)
 - [ ] Classes support
-- [ ] Style support
-- [ ] CSS support with `css`
+- [ ] Style support (CSS support with `css`)
