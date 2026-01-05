@@ -109,7 +109,9 @@ class HTMLParser {
   }
 
   getInsertion(): Argument | null {
-    return this.#values[this.#tsaIdx - 1] || null;
+    // we should not be using `||` because we might get
+    // values like `0` to be gone!
+    return this.#values[this.#tsaIdx - 1] ?? null;
   }
 
   consume(): VirtualItem {
