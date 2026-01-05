@@ -22,7 +22,11 @@ export class Dependent<const T extends readonly unknown[], R>
   ) {
     this.#value =
       set ||
-      gen(Array.isArray(arg0) ? (arg0.map((itm) => itm.value) as any) : arg0);
+      gen(
+        Array.isArray(arg0)
+          ? (arg0.map((itm) => itm.value) as any)
+          : arg0.value,
+      );
     this.#gen = gen;
     this.#subscribers = new Map();
 
