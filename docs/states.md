@@ -1,5 +1,6 @@
 # States <Badge type="tip" text="stable" />
 States are a kind of *subscribable*, which can be subscribed via `.subscribe()`.
+They hold data and and allow you to keep track of specific app or component states.
 
 | Identifier      | Availability |
 |-----------------|--------------|

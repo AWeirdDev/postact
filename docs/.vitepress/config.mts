@@ -29,6 +29,14 @@ export default defineConfig({
             link: "/states",
           },
           {
+            text: "Dependents",
+            link: "/dependents",
+          },
+          {
+            text: "HTML",
+            link: "/html",
+          },
+          {
             text: "Routes",
             link: "/routes",
           },
