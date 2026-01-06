@@ -1,10 +1,6 @@
-import { html, ref, select } from "./src";
+import { state, dependent, html } from "./src";
 
-const $div = ref();
+const $t = state(false);
+const $v = dependent($t, (t) => (t ? html`<div>wtf?</div>` : "no"));
 
-$div.subscribe((value) => {
-  console.log("got ref", value);
-});
-
-const ele = html` <div a="asdf" ref=${$div}>Hello!</div> `;
-select("#app").render(ele);
+console.log($v.value);

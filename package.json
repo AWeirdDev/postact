@@ -1,6 +1,15 @@
 {
   "name": "@postact/core",
-  "version": "0.0.7",
+  "version": "0.0.8",
+  "keywords": [
+    "virtual dom",
+    "jsx",
+    "html",
+    "states",
+    "client side",
+    "template",
+    "library"
+  ],
   "author": {
     "email": "awdjared@gmail.com",
     "name": "AWeirdDev",

@@ -1,9 +1,14 @@
 # Postact
-Postact is a semi-opinionated yet minimalist library (and a potential framework) for building robust web apps. It mainly consists of two things:
+[🚧 **Docs**](https://aweirddev.github.io/postact) · [**GitHub**](https://github.com/AWeirdDev/postact)
+
+Postact is a zero-dependency, semi-opinionated yet minimalist library (and a potential framework) for building robust web apps. It mainly consists of a few things:
 
 - **HTML creation** — with `html`
 - **States (subscribables)** — with `state`, `dependent`, `later`.
   There are also utilities to help you build your web app even faster, just like in vanilla Javascript.
+- **Client-side routing** — `route`
+
+Installation (or with `bun`, `pnpm`, `yarn`, etc.):
 
 ```sh
 $ npm i @postact/core
@@ -155,6 +160,6 @@ In the future. Maybe. Okay yeah I will.
 - [x] Virtual fragment (w/ `subscribables` field) support
 - [x] Insertions after regular tags
 - [ ] Component-like insertions `<${...}>`
-- [ ] References (`ref`)
+- [x] References (`ref`)
 - [ ] Classes support
 - [ ] Style support (CSS support with `css`)
