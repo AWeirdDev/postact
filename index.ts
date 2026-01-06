@@ -1,5 +1,10 @@
-import { dependent, html, route, select, state, text } from "./src";
+import { html, ref, select } from "./src";
 
-route("/hello/*", () => {
-  console.log("boo!");
+const $div = ref();
+
+$div.subscribe((value) => {
+  console.log("got ref", value);
 });
+
+const ele = html` <div a="asdf" ref=${$div}>Hello!</div> `;
+select("#app").render(ele);

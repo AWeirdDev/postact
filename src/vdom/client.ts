@@ -11,6 +11,7 @@ import { ensureWindow, isPrimitive } from "../utilities";
 
 import { simpleRandString } from "../_internals";
 import { isSubscribable } from "../subscribable";
+import { isRef } from "../ref";
 
 function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   const fragment = window.document.createDocumentFragment();
@@ -61,6 +62,12 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     // attributes
     Object.entries(vi.attributes).forEach(([name, value]) => {
       if (typeof value === "undefined" || value === null) return;
+
+      if (isRef(value)) {
+        value.value = element;
+        // @ts-ignore
+        value.emit();
+      }
 
       if (isSubscribable(value)) {
         value.subscribe((newValue) => {

@@ -73,6 +73,7 @@ export class BaseSubscribable<T> implements Subscribable<T> {
 export function isSubscribable(item: any): item is Subscribable<any> {
   return (
     isPostactIdent(PostactIdentifier.Dependent, item) ||
-    isPostactIdent(PostactIdentifier.State, item)
+    isPostactIdent(PostactIdentifier.State, item) ||
+    isPostactIdent(PostactIdentifier.Ref, item)
   );
 }

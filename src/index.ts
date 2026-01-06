@@ -9,6 +9,7 @@ export {
 } from "./state";
 export { dependent } from "./dependent";
 export { later } from "./later";
+export { ref } from "./ref";
 export type { Subscriber, Subscribable } from "./subscribable";
 
 export { html } from "./html";

@@ -1,8 +1,10 @@
 import { isPostactIdent, PostactIdentifier } from "../_internals";
+
+import type { Ref } from "../ref";
 import type { Subscribable } from "../subscribable";
 
 type _Any = number | string | boolean | null | undefined;
-export type AttributeValue = _Any | string | Subscribable<_Any>;
+export type AttributeValue = _Any | string | Subscribable<_Any> | Ref<any>;
 export type Attributes = Record<string, AttributeValue>;
 
 export interface VirtualElement {

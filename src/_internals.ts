@@ -56,6 +56,7 @@ export enum PostactIdentifier {
   CSSPaper = 5, // RESERVED
   ComponentPointer = 6,
   ComponentInstance = 7,
+  Ref = 8,
 }
 
 /**
