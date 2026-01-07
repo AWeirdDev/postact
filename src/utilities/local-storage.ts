@@ -37,3 +37,19 @@ export function localStorage(key: string): LocalStorageInterface {
   ensureWindow();
   return new LocalStorageInterface(key);
 }
+
+// type SerializableKey = string | number | bigint | boolean;
+
+// type SerializableObject = {
+//   [key in SerializableKey as `${key}`]: Serializable;
+// };
+
+// type Serializable =
+//   | null
+//   | undefined
+//   | number
+//   | bigint
+//   | string
+//   | boolean
+//   | Serializable[]
+//   | SerializableObject;

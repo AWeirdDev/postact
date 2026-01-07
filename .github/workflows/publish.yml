@@ -51,3 +51,5 @@ jobs:
           else
             echo "⚠️  Skipping $pkg_name - package does not exist on npm. Create it first with: npm publish --access public"
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
