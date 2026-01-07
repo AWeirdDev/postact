@@ -1,7 +1,7 @@
 # Ref
 Get a reference to rendered elements with `ref()`.
 
-```ts twoslash
+```ts
 import { ref, select, html } from "@postact/core";
 
 const $div = ref<HTMLDivElement>();
