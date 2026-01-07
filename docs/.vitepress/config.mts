@@ -33,12 +33,24 @@ export default defineConfig({
             link: "/dependents",
           },
           {
+            text: "Later",
+            link: "/later",
+          },
+          {
             text: "HTML",
             link: "/html",
           },
           {
+            text: "Ref",
+            link: "/ref",
+          },
+          {
             text: "Routes",
             link: "/routes",
+          },
+          {
+            text: "Utilities",
+            link: "/utilities",
           },
         ],
       },

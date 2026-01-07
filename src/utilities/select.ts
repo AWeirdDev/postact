@@ -1,5 +1,6 @@
 import type { VirtualItem } from "../vdom/structure";
 import { realize } from "../vdom/client";
+import { render } from "./render";
 
 interface SelectionUtils {
   /**
@@ -33,7 +34,7 @@ export function select<T extends HTMLElement>(
     );
 
   result.render = (vi) => {
-    result.replaceChildren(realize(vi));
+    render(result, vi);
   };
 
   return result as T & SelectionUtils;

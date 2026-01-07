@@ -10,6 +10,17 @@ export type Ref<T extends HTMLElement> = Subscribable<T | null> & {
 
 /**
  * Create a new reference.
+ * Reference values (`.value`) remain `null` until rendered.
+ *
+ * @example
+ * ```ts
+ * const $div = ref();
+ * $div.subscribe((div) => {
+ *   console.log("rendered:", div.textContent);
+ * });
+ *
+ * html`<div ref=${$div}>Hello</div>`
+ * ```
  */
 export function ref<T extends HTMLElement>(): Ref<T> {
   return Object.assign(new BaseSubscribable(null), {

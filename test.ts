@@ -1,14 +1,15 @@
-import { dependent, state } from "./src";
+import { sleep } from "bun";
+import { state } from "./src";
 
-const $age = state(0);
-const $name = state("John");
+const $count = state(0);
 
-const $user = dependent([$age, $name], ([age, name]) => {
-  return { age, name };
+$count.subscribe(async () => {
+  console.log("oh no!");
+  await sleep(1000);
 });
 
-$user.subscribe((item) => {
-  console.log(item);
+$count.subscribe(() => {
+  console.log("boo!");
 });
 
-$age.update(1);
+$count.update(1);

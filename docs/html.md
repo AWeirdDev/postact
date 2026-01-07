@@ -60,4 +60,6 @@ The `html` function returns:
 }
 ```
 
-It contains all the necessary information for Postact to build the actual DOM.
+For more information, check out the internal API documentation.
+
+## States

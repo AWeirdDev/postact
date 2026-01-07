@@ -5,7 +5,7 @@
     "": {
       "name": "postact",
       "devDependencies": {
-        "@postact/core": "^0.0.6",
+        "@postact/core": "0.0.8",
         "@shikijs/vitepress-twoslash": "^3.20.0",
         "@testing-library/dom": "^10.4.1",
         "@types/bun": "latest",
@@ -188,7 +188,7 @@
 
     "@polka/url": ["@polka/url@1.0.0-next.29", "", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
 
-    "@postact/core": ["@postact/core@0.0.6", "", { "peerDependencies": { "typescript": "^5.9.3" } }, "sha512-gs8AJ6qifPw0lQUF8SxMvn1PUJ2Um9qVXt/OBVia1L0EGK562H8kpUVhiLiovDpRcYMd9OT/uQWcIxI0/abb+w=="],
+    "@postact/core": ["@postact/core@0.0.8", "", { "peerDependencies": { "typescript": "^5.9.3" } }, "sha512-vInWpda+PBrGxZKyfoNQY+iGwvp9JDbwWuSv9gietwR9mgaPz89MnloVoZuV6IigaBD/vq6cky9HphhqErOlJA=="],
 
     "@rolldown/binding-darwin-arm64": ["@rolldown/binding-darwin-arm64@1.0.0-beta.9-commit.d91dfb5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Mp0/gqiPdepHjjVm7e0yL1acWvI0rJVVFQEADSezvAjon9sjQ7CEg9JnXICD4B1YrPmN9qV/e7cQZCp87tTV4w=="],
 

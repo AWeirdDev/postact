@@ -1,4 +1,11 @@
-export { select, ensureWindow, unescape } from "./utilities";
+// utilities
+export {
+  select,
+  ensureWindow,
+  unescape,
+  render,
+  localStorage,
+} from "./utilities";
 
 // subscribables
 export {
@@ -12,6 +19,7 @@ export { later } from "./later";
 export { ref } from "./ref";
 export type { Subscriber, Subscribable } from "./subscribable";
 
+// display-related
 export { html } from "./html";
 export { css } from "./css";
 export { text } from "./text";

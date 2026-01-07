@@ -54,8 +54,13 @@ $name.update("Walter White");
 ```
 
 ## Rendering logic
-You can apply rendering logic using `dependent`.
+You can apply rendering logic using `dependent`. In the example below, `dependent` serves as a toggle for conditional rendering.
+
+::: tip 💡 TIP
+
 If you'd like, you can rename it to `d` for quicker access.
+
+:::
 
 ```ts twoslash
 import { state, select, html, dependent as d } from "@postact/core";
@@ -91,7 +96,7 @@ onMounted(() => {
   
     select('[data-demo="dependents-rendering-logic"]').render(html`
         <div>
-            ${d($toggled, (t) => (t ? html`<div>wtf?</div>` : "no"))}
+            ${d($toggled, (t) => t ? html`<h1>Boo!</h1>` : null)}
         </div>
         <button class="postact-btn" onclick=${() => $toggled.update(t => !t)}>Toggle</button>
     `);
