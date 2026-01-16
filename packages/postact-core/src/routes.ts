@@ -4,17 +4,18 @@ import { BaseSubscribable } from "./subscribable";
 /**
  * A global router. Used for **subscribing and publishing only**.
  */
-const GLOBAL_ROUTER: BaseSubscribable<{ pathname: string; hash: string }> =
-  new BaseSubscribable({ pathname: "", hash: " " });
+const GLOBAL_ROUTER: BaseSubscribable<{ pathname: string; hash: string }> = new BaseSubscribable({
+  pathname: "",
+  hash: " ",
+});
 let GLOBAL_HAS_REGISTERED_HASH_LISTENER: boolean = false;
 
 // [ai-generated content]
-type ExtractRouteParams<Path extends string> =
-  Path extends `${string}:${infer Param}/${infer Rest}`
-    ? { [K in Param | keyof ExtractRouteParams<`/${Rest}`>]: string }
-    : Path extends `${string}:${infer Param}`
-      ? { [K in Param]: string }
-      : {};
+type ExtractRouteParams<Path extends string> = Path extends `${string}:${infer Param}/${infer Rest}`
+  ? { [K in Param | keyof ExtractRouteParams<`/${Rest}`>]: string }
+  : Path extends `${string}:${infer Param}`
+    ? { [K in Param]: string }
+    : {};
 // [/ai-generated content]
 
 export interface RouteContext<Path extends string> {
@@ -75,9 +76,7 @@ export function route<Path extends string>(
   const useHash = route.startsWith("#");
 
   function _run(pathname: string, hash: string) {
-    const pathSplits = useHash
-      ? hash.replace("#", "").split("/")
-      : pathname.split("/");
+    const pathSplits = useHash ? hash.replace("#", "").split("/") : pathname.split("/");
 
     const args = useHash ? route.slice(1).split("/") : route.split("/");
     const params: Record<string, string> = {};

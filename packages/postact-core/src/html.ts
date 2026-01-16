@@ -167,8 +167,7 @@ class HTMLParser {
   }
 
   processElement(): VirtualElement {
-    const [startTag, attributes, selfClosing, afterTagShouldInsert] =
-      this.consumeTag();
+    const [startTag, attributes, selfClosing, afterTagShouldInsert] = this.consumeTag();
 
     const [listeners, attrs] = filterListenersFromAttributes(attributes);
 
@@ -186,10 +185,7 @@ class HTMLParser {
     const endTag = this.consumeEndTag();
 
     if (startTag !== endTag)
-      throw ParseError.tagMismatch(
-        startTag,
-        typeof endTag === "string" ? endTag : "[component]",
-      );
+      throw ParseError.tagMismatch(startTag, typeof endTag === "string" ? endTag : "[component]");
 
     return {
       __p: PostactIdentifier.VirtualElement,
@@ -201,8 +197,7 @@ class HTMLParser {
   }
 
   processComponent(insertion: Component<any> | ComponentInstance): VirtualItem {
-    const [attributes, selfClosing, afterTagShouldInsert] =
-      this.consumeAttributes();
+    const [attributes, selfClosing, afterTagShouldInsert] = this.consumeAttributes();
 
     // don't do: html`<${Fruits} apples=${10} />`
     // this is BAD (actually, horrible) for runtime!
@@ -213,18 +208,14 @@ class HTMLParser {
     // typescript will warn you of this.
     if (attributes.size > 0) throw ParseError.typeCheckComponentProps();
 
-    if (selfClosing)
-      return insertion.ptr(isComponentPtr(insertion) ? {} : insertion.props);
+    if (selfClosing) return insertion.ptr(isComponentPtr(insertion) ? {} : insertion.props);
 
     const children = this.consumeChildren(afterTagShouldInsert);
     const endTag = this.consumeEndTag();
-    if (typeof endTag !== "function")
-      throw ParseError.tagMismatch("[component]", endTag);
+    if (typeof endTag !== "function") throw ParseError.tagMismatch("[component]", endTag);
 
     if (!isComponentPtr(endTag))
-      throw new TypeError(
-        "expected component pointer for end tag, got other functions instead",
-      );
+      throw new TypeError("expected component pointer for end tag, got other functions instead");
 
     if (endTag.ptr !== insertion.ptr)
       throw ParseError.tagMismatch("[component A]", "[component B]");
@@ -238,27 +229,20 @@ class HTMLParser {
   /**
    * @returns `[(tag name), (attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeTag(): [
-    string,
-    Map<string, AttributeValue | Function>,
-    boolean,
-    boolean,
-  ] {
+  consumeTag(): [string, Map<string, AttributeValue | Function>, boolean, boolean] {
     let tag = "";
     while (true) {
       const [shouldInsert, chr] = this.next()!;
 
       if (/\s/.test(chr)) {
-        const [attrs, selfClosing, shouldInsertAfterAttrConsumption] =
-          this.consumeAttributes();
+        const [attrs, selfClosing, shouldInsertAfterAttrConsumption] = this.consumeAttributes();
         return [tag, attrs, selfClosing, shouldInsertAfterAttrConsumption];
       }
 
       if (chr == ">") return [tag, new Map(), false, shouldInsert];
       if (shouldInsert) throw ParseError.noInsertInTagNames();
 
-      if (!/[a-zA-Z0-9-]/.test(chr))
-        throw ParseError.invalidCharacterInTagName(chr);
+      if (!/[a-zA-Z0-9-]/.test(chr)) throw ParseError.invalidCharacterInTagName(chr);
 
       tag += chr;
     }
@@ -268,11 +252,7 @@ class HTMLParser {
    *
    * @returns `[(attributes), (self-closing?), (shouldInsert?)]`
    */
-  consumeAttributes(): [
-    Map<string, AttributeValue | Function>,
-    boolean,
-    boolean,
-  ] {
+  consumeAttributes(): [Map<string, AttributeValue | Function>, boolean, boolean] {
     const attrs: Map<string, AttributeValue | Function> = new Map();
     let name = "";
 
@@ -315,8 +295,7 @@ class HTMLParser {
           state = 1;
         } else {
           if (shouldInsert) throw ParseError.noInsertInAttrNames();
-          if (!/[a-zA-Z0-9-]/.test(chr))
-            throw ParseError.invalidCharacterInAttributeName(chr);
+          if (!/[a-zA-Z0-9-]/.test(chr)) throw ParseError.invalidCharacterInAttributeName(chr);
           name += chr;
           continue;
         }
@@ -379,8 +358,7 @@ class HTMLParser {
           throw ParseError.noInsertInTagNames();
         }
       } else {
-        if (typeof name === "function")
-          throw ParseError.invalidCharacterInTagName(chr);
+        if (typeof name === "function") throw ParseError.invalidCharacterInTagName(chr);
 
         if (/\s/.test(chr)) state = 1;
 
@@ -427,8 +405,7 @@ class HTMLParser {
     let text = "";
     const children: VirtualItem[] = [];
 
-    if (afterTagShouldInsert)
-      children.push(transformArgToVirtualItem(this.getInsertion()));
+    if (afterTagShouldInsert) children.push(transformArgToVirtualItem(this.getInsertion()));
 
     while (true) {
       const [shouldInsert, chr] = this.next()!;
@@ -495,9 +472,7 @@ export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
       if (typeof fValue === "undefined" || fValue === null) return null;
       if (isPrimitive(fValue)) return createVtn(fValue.toString());
       if (!isPostactEcosystem(fValue))
-        throw new Error(
-          `unresolvable value in children after function calling. value: ${fValue}`,
-        );
+        throw new Error(`unresolvable value in children after function calling. value: ${fValue}`);
 
       return fValue as VirtualItem;
   }
@@ -552,10 +527,7 @@ function filterListenersFromAttributes<
  * @param tsa Template strings.
  * @param values Values (arguments).
  */
-export function html(
-  tsa: TemplateStringsArray,
-  ...values: Argument[]
-): VirtualItem {
+export function html(tsa: TemplateStringsArray, ...values: Argument[]): VirtualItem {
   const parser = new HTMLParser(tsa, values);
   return parser.consume();
 }

@@ -63,10 +63,7 @@ export function isVtn(item: any): item is VirtualTextNode {
 /**
  * (helper) Create a virtual text node.
  */
-export function createVtn(
-  data: string,
-  subscribable?: Subscribable<any>,
-): VirtualTextNode {
+export function createVtn(data: string, subscribable?: Subscribable<any>): VirtualTextNode {
   return {
     __p: PostactIdentifier.VirtualTextNode,
     data,
@@ -74,8 +71,4 @@ export function createVtn(
   };
 }
 
-export type VirtualItem =
-  | VirtualTextNode
-  | VirtualElement
-  | VirtualFragment
-  | null;
+export type VirtualItem = VirtualTextNode | VirtualElement | VirtualFragment | null;

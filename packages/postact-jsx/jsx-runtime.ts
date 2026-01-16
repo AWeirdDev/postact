@@ -92,7 +92,9 @@ export declare namespace JSX {
 
 const Fragment = Symbol();
 
-function children(items: any[]) {}
+function mapChildren(items: any[]) {
+  return items.map((item) => {});
+}
 
 function jsx(
   type: Symbol | Function | string,

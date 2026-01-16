@@ -1,19 +1,8 @@
 // utilities
-export {
-  select,
-  ensureWindow,
-  unescape,
-  render,
-  localStorage,
-} from "./utilities";
+export { select, ensureWindow, unescape, render, localStorage } from "./utilities";
 
 // subscribables
-export {
-  state,
-  type Checker,
-  type Updater,
-  type UpdateDispatch,
-} from "./state";
+export { state, type Checker, type Updater, type UpdateDispatch } from "./state";
 export { dependent } from "./dependent";
 export { later } from "./later";
 export { ref, type Ref } from "./ref";

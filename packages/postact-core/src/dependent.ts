@@ -6,27 +6,16 @@ type WrapTupleWithSubscribables<T extends readonly unknown[]> = {
   [K in keyof T]: Subscribable<T[K]>;
 };
 
-export class Dependent<const T extends readonly unknown[], R>
-  implements Subscribable<R>
-{
+export class Dependent<const T extends readonly unknown[], R> implements Subscribable<R> {
   public __p: PostactIdentifier.Dependent = PostactIdentifier.Dependent;
 
   #gen: (values: T) => R;
   #value: R;
   #subscribers: Map<Subscriber<R>, Subscriber<R>>;
 
-  constructor(
-    arg0: WrapTupleWithSubscribables<T> | any,
-    gen: (value: T) => R,
-    set?: R,
-  ) {
+  constructor(arg0: WrapTupleWithSubscribables<T> | any, gen: (value: T) => R, set?: R) {
     this.#value =
-      set ||
-      gen(
-        Array.isArray(arg0)
-          ? (arg0.map((itm) => itm.value) as any)
-          : arg0.value,
-      );
+      set || gen(Array.isArray(arg0) ? (arg0.map((itm) => itm.value) as any) : arg0.value);
     this.#gen = gen;
     this.#subscribers = new Map();
 

@@ -80,9 +80,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     });
 
     // listeners
-    vi.listeners.forEach(([name, listener]) =>
-      element.addEventListener(name, listener),
-    );
+    vi.listeners.forEach(([name, listener]) => element.addEventListener(name, listener));
 
     // subscribables
     if (vi.subscribable)
@@ -132,10 +130,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   }
 }
 
-function resolveSubscribableValueToFrag(
-  value: any,
-  options: ToFragOptions,
-): DocumentFragment {
+function resolveSubscribableValueToFrag(value: any, options: ToFragOptions): DocumentFragment {
   if (typeof value === "undefined" || value === null) {
     return window.document.createDocumentFragment();
   } else if (isPrimitive(value)) {
@@ -175,15 +170,10 @@ class FragmentSpread {
   }
 }
 
-function resolveAttribute(
-  element: HTMLElement,
-  name: string,
-  value: AttributeValue,
-) {
+function resolveAttribute(element: HTMLElement, name: string, value: AttributeValue) {
   // According to mdn, if the specified attribute does not exist,
   // `removeAttribute()` returns without generating an error.
-  if (typeof value === "undefined" || value === null)
-    element.removeAttribute(name);
+  if (typeof value === "undefined" || value === null) element.removeAttribute(name);
   else element.setAttribute(name, value.toString());
 }
 

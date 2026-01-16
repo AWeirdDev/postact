@@ -64,9 +64,7 @@ export enum PostactIdentifier {
  * @param item The item to check.
  * @returns
  */
-export function isPostactEcosystem(
-  item: any,
-): item is { __p: PostactIdentifier } {
+export function isPostactEcosystem(item: any): item is { __p: PostactIdentifier } {
   if (item === null) return false;
   if (typeof item === "object" && Object.hasOwn(item, "__p")) return true;
   return false;
@@ -77,10 +75,7 @@ export function isPostactEcosystem(
  * @param ident The Postact identifier to check.
  * @param item The item to check.
  */
-export function isPostactIdent<K extends PostactIdentifier>(
-  ident: K,
-  item: any,
-): item is K {
+export function isPostactIdent<K extends PostactIdentifier>(ident: K, item: any): item is K {
   if (item === null) return false;
   if (
     (typeof item === "object" || typeof item === "function") &&
@@ -96,7 +91,5 @@ export function isPostactIdent<K extends PostactIdentifier>(
  * @param len The length of the string.
  */
 export function simpleRandString(len: number = 6): string {
-  return Array.from({ length: len }, () =>
-    Math.floor(Math.random() * 16).toString(16),
-  ).join("");
+  return Array.from({ length: len }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }

@@ -22,16 +22,9 @@ interface SelectionUtils {
  * @param query The query.
  * @throws {ReferenceError} The node was not found.
  */
-export function select<T extends HTMLElement>(
-  query: string,
-): T & SelectionUtils {
-  const result = window.document.querySelector<T>(query) as
-    | undefined
-    | (T & SelectionUtils);
-  if (!result)
-    throw new ReferenceError(
-      `could not find any element matching query: ${query}`,
-    );
+export function select<T extends HTMLElement>(query: string): T & SelectionUtils {
+  const result = window.document.querySelector<T>(query) as undefined | (T & SelectionUtils);
+  if (!result) throw new ReferenceError(`could not find any element matching query: ${query}`);
 
   result.render = (vi) => {
     render(result, vi);

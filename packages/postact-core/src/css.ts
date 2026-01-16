@@ -32,9 +32,7 @@ function getName(key: string): string {
 
 type _AnyCSSValue = string | number;
 type StyleDeclaration = {
-  [K in keyof CSSStyleDeclaration]:
-    | CSSStyleDeclaration[K]
-    | Subscribable<CSSStyleDeclaration[K]>;
+  [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] | Subscribable<CSSStyleDeclaration[K]>;
 };
 
 export function css(

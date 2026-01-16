@@ -15,9 +15,7 @@ interface ComponentInner<K = {}> {
   ptr: ComponentInnerFn<K>;
 }
 
-export type Component<K> = ((
-  props: PropsWithChildren<K>,
-) => ComponentInstance<K>) &
+export type Component<K> = ((props: PropsWithChildren<K>) => ComponentInstance<K>) &
   Readonly<ComponentInner<K>>;
 
 export function component<K>(fn: ComponentInnerFn<K>): Component<K> {

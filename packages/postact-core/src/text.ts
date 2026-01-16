@@ -18,10 +18,7 @@ import { isPrimitive } from "./utilities";
  * console.log($label.value) // "Current: 1"
  * ```
  */
-export function text(
-  tsa: TemplateStringsArray,
-  ...args: Argument[]
-): Subscribable<string> {
+export function text(tsa: TemplateStringsArray, ...args: Argument[]): Subscribable<string> {
   const deps = args.reduce((acc, arg) => {
     if (isSubscribable(arg)) acc.push(arg);
     return acc;
@@ -38,8 +35,7 @@ export function textWithOptions(
   args: Argument[],
   options?: { set?: string; transformer: (item: any) => string },
 ): Subscribable<string> {
-  const transformer =
-    options && options.transformer ? options.transformer : anyToString;
+  const transformer = options && options.transformer ? options.transformer : anyToString;
 
   return dependent<string, any>(
     deps,
