@@ -26,18 +26,21 @@ export function text(
     if (isSubscribable(arg)) acc.push(arg);
     return acc;
   }, [] as Subscribable<any>[]);
-  return textWithDefault(deps, tsa, args);
+  return textWithOptions(deps, tsa, args);
 }
 
 /**
  * (internal, reserved)
  */
-export function textWithDefault(
+export function textWithOptions(
   deps: Subscribable<any>[],
   tsa: TemplateStringsArray,
   args: Argument[],
-  set?: string,
+  options?: { set?: string; transformer: (item: any) => string },
 ): Subscribable<string> {
+  const transformer =
+    options && options.transformer ? options.transformer : anyToString;
+
   return dependent<string, any>(
     deps,
     () => {
@@ -56,15 +59,15 @@ export function textWithDefault(
               break;
 
             case ArgumentType.Subscribable:
-              s += anyToString((arg as Subscribable<any>).value);
+              s += transformer((arg as Subscribable<any>).value);
               break;
 
             case ArgumentType.VirtualItem:
-              s += anyToString(arg);
+              s += transformer(arg);
               break;
 
             case ArgumentType.Function:
-              s += anyToString((arg as Function)());
+              s += transformer((arg as Function)());
               break;
           }
         }
@@ -75,7 +78,7 @@ export function textWithDefault(
 
       return s;
     },
-    set,
+    options ? options.set : undefined,
   );
 }
 

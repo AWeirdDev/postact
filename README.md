@@ -159,7 +159,7 @@ In the future. Maybe. Okay yeah I will.
 - [x] **IMPORTANT: Rewrite `vdom/client.ts`**
 - [x] Virtual fragment (w/ `subscribables` field) support
 - [x] Insertions after regular tags
-- [ ] Component-like insertions `<${...}>`
+- [x] Component-like insertions `<${...}>`
 - [x] References (`ref`)
 - [ ] Classes support
 - [ ] Style support (CSS support with `css`)

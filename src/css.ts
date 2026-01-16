@@ -1,6 +1,6 @@
 import { isPostactIdent, PostactIdentifier } from "./_internals";
 import { isSubscribable, type Subscribable } from "./subscribable";
-import { anyToString, text, textWithDefault } from "./text";
+import { anyToString, text, textWithOptions } from "./text";
 
 /**
  * Gets the CSS property name.
