@@ -23,7 +23,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: bun install
+        run: bun ci
 
       - name: Build packages
         run: bun run build
@@ -47,33 +47,29 @@ jobs:
       - name: Publish @postact/core
         working-directory: packages/postact-core
         run: |
-          pkg_name=$(node -p "require('./package.json').name")
-          echo "publishing $pkg_name"
+          for pkg_json in packages/*/package.json; do
+            pkg_dir=$(dirname "$pkg_json")
+            pkg_name=$(node -p "require('./$pkg_json').name")
 
-          if npm view "$pkg_name" version &>/dev/null; then
-            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
-            echo "successfully published $pkg_name"
-          else
-            echo "package $pkg_name does not exist on npm yet"
-            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
-            echo "successfully created and published $pkg_name"
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            echo "publishing $pkg_name ($pkg_dir)"
 
-      - name: Publish @postact/jsx
-        working-directory: packages/postact-jsx
-        run: |
-          pkg_name=$(node -p "require('./package.json').name")
-          echo "publishing $pkg_name..."
+            if npm view "$pkg_name" version &>/dev/null; then
+              (
+                cd "$pkg_dir" || exit 1
 
-          if npm view "$pkg_name" version &>/dev/null; then
-            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
-            echo "successfully published $pkg_name"
-          else
-            echo "package $pkg_name does not exist on npm yet."
-            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
-            echo "successfully created and published $pkg_name"
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                bun pm pack
+                tarball=$(ls *.tgz)
+
+                npm publish "$tarball" \
+                  --access public \
+                  --tag ${{ steps.npm-tag.outputs.tag }}
+
+                rm -f "$tarball"
+              )
+              echo "successfully published $pkg_name"
+            else
+              echo "package $pkg_name does not exist on npm yet"
+            fi
+
+            echo
+          done
