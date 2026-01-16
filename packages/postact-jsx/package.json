@@ -1,5 +1,13 @@
 {
   "name": "@postact/jsx",
+  "version": "0.0.1",
+  "description": "JSX support for Postact.",
+  "author": {
+    "name": "AWeirdDev",
+    "email": "awdjared@gmail.com",
+    "url": "https://github.com/AWeirdDev"
+  },
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -23,7 +31,7 @@
   },
   "scripts": {
     "build": "tsc && rolldown -m -c",
-    "fmt": "oxfmt *.ts"
+    "fmt": "oxfmt jsx-runtime.ts jsx-dev-runtime.ts test.tsx"
   },
   "dependencies": {
     "@postact/core": "workspace:*"

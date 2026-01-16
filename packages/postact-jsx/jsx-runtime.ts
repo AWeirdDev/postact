@@ -1,7 +1,10 @@
 import {
   createVf,
+  PostactIdentifier,
+  transformArgToVirtualItem,
   type Ref,
   type Subscribable,
+  type VirtualElement,
   type VirtualFragment,
   type VirtualItem,
 } from "@postact/core";
@@ -93,20 +96,36 @@ export declare namespace JSX {
 const Fragment = Symbol();
 
 function mapChildren(items: any[]) {
-  return items.map((item) => {});
+  return items.map((item) => transformArgToVirtualItem(item));
 }
 
-function jsx(
-  type: Symbol | Function | string,
-  props: any,
-  key?: string,
-  isStaticChildren?: boolean,
-): JSX.Element {
+function jsx(type: Symbol | Function | string, props: any): JSX.Element {
+  const hasChildren = typeof props.children !== "undefined" && props.children !== null;
+  const children = !hasChildren
+    ? []
+    : Array.isArray(props.children)
+      ? props.children
+      : [props.children];
+
   if (type === Fragment) {
-    const children = Array.isArray(props.children) ? props.children : [props.children];
-    return createVf(children);
+    return createVf(mapChildren(children));
+  } else if (typeof type === "string") {
+    if (hasChildren) {
+      delete props["children"];
+    }
+
+    return {
+      __p: PostactIdentifier.VirtualElement,
+      tag: type,
+      attributes: props,
+      children: mapChildren(children),
+      listeners: [],
+    } satisfies VirtualElement;
+  } else if (typeof type === "function") {
+    return type(props);
+  } else {
+    throw new TypeError("unknown type");
   }
-  return createVf([]);
 }
 
 export { jsx, jsx as jsxs, Fragment };

@@ -12,6 +12,7 @@ export type { Subscriber, Subscribable } from "./subscribable";
 export { html } from "./html";
 export { css } from "./css";
 export { text } from "./text";
+export { transformArgToVirtualItem } from "./argument";
 
 // components
 export {
@@ -37,3 +38,6 @@ export {
   isVtn,
 } from "./vdom/structure";
 export { realize, type ToFragOptions } from "./vdom/client";
+
+// expose some internals... it's fine
+export { PostactIdentifier } from "./_internals";

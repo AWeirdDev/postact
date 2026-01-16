@@ -11,10 +11,10 @@ permissions:
 
 jobs:
   publish:
-    name: publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
 
       - uses: actions/setup-node@v6
@@ -22,9 +22,14 @@ jobs:
           node-version: 24
           registry-url: "https://registry.npmjs.org"
 
-      - run: bun ci
-      - run: bun run build
-      - name: Publish packages
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build packages
+        run: bun run build
+
+      - name: Determine npm tag
+        id: npm-tag
         run: |
           version="$GITHUB_REF_NAME"
 
@@ -36,20 +41,39 @@ jobs:
             tag=latest
           fi
 
-          # npm publish for OIDC authentication
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "publishing with tag: $tag"
+
+      - name: Publish @postact/core
+        working-directory: packages/postact-core
+        run: |
           pkg_name=$(node -p "require('./package.json').name")
-          echo "Checking if $pkg_name exists on npm..."
+          echo "publishing $pkg_name"
 
           if npm view "$pkg_name" version &>/dev/null; then
-            echo "Publishing $pkg..."
-            (
-              bun pm pack
-              tarball=$(ls *.tgz)
-              npm publish "$tarball" --access public --tag $tag
-              rm -f "$tarball"
-            )
+            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+            echo "successfully published $pkg_name"
           else
-            echo "⚠️  Skipping $pkg_name - package does not exist on npm. Create it first with: npm publish --access public"
+            echo "package $pkg_name does not exist on npm yet"
+            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+            echo "successfully created and published $pkg_name"
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @postact/jsx
+        working-directory: packages/postact-jsx
+        run: |
+          pkg_name=$(node -p "require('./package.json').name")
+          echo "publishing $pkg_name..."
+
+          if npm view "$pkg_name" version &>/dev/null; then
+            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+            echo "successfully published $pkg_name"
+          else
+            echo "package $pkg_name does not exist on npm yet."
+            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+            echo "successfully created and published $pkg_name"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

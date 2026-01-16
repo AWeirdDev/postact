@@ -7,9 +7,14 @@ import {
   type VirtualItem,
 } from "./vdom/structure";
 import type { Subscribable } from "./subscribable";
-import { isPrimitive, unescape } from "./utilities";
-import { isPostactEcosystem, PostactIdentifier } from "./_internals";
-import { ArgumentType, identifyArgument, type Argument } from "./argument";
+import { unescape } from "./utilities";
+import { PostactIdentifier } from "./_internals";
+import {
+  ArgumentType,
+  identifyArgument,
+  transformArgToVirtualItem,
+  type Argument,
+} from "./argument";
 import {
   isComponentInstance,
   isComponentPtr,
@@ -437,44 +442,6 @@ class HTMLParser {
 
     if (text.trim()) children.push(createVtn(unescape(text)));
     return children;
-  }
-}
-
-export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
-  switch (identifyArgument(insertion)) {
-    case ArgumentType.Empty:
-      return null;
-
-    case ArgumentType.Text:
-      return createVtn(insertion!.toString());
-
-    case ArgumentType.Subscribable:
-      // we'll put the initial value
-      const state = insertion as Subscribable<any>;
-      const value = state.value;
-
-      if (typeof value !== "undefined" && value !== null) {
-        if (isPrimitive(value)) {
-          return createVtn(value.toString(), state);
-        } else {
-          return createVf([value], state);
-        }
-      } else {
-        return createVtn("", state);
-      }
-
-    case ArgumentType.VirtualItem:
-      return insertion as VirtualItem;
-
-    case ArgumentType.Function:
-      // similar to states, we'll do an initial render
-      const fValue = (insertion as Function)();
-      if (typeof fValue === "undefined" || fValue === null) return null;
-      if (isPrimitive(fValue)) return createVtn(fValue.toString());
-      if (!isPostactEcosystem(fValue))
-        throw new Error(`unresolvable value in children after function calling. value: ${fValue}`);
-
-      return fValue as VirtualItem;
   }
 }
 

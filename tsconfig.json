@@ -7,6 +7,9 @@
     "moduleDetection": "force",
     "allowJs": true,
 
+    "jsx": "react-jsx",
+    "jsxImportSource": "@postact/jsx",
+
     // Bundler mode
     "moduleResolution": "bundler",
     "composite": true,
