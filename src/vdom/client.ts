@@ -60,7 +60,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     const element = window.document.createElement(vi.tag);
 
     // attributes
-    Object.entries(vi.attributes).forEach(([name, value]) => {
+    vi.attributes.entries().forEach(([name, value]) => {
       if (typeof value === "undefined" || value === null) return;
 
       if (isRef(value)) {
@@ -128,7 +128,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     }
     return fragment;
   } else {
-    throw new Error("unknown virtual item", vi);
+    throw new Error("unknown virtual item");
   }
 }
 

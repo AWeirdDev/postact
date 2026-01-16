@@ -5,7 +5,7 @@ import type { Subscribable } from "../subscribable";
 
 type _Any = number | string | boolean | null | undefined;
 export type AttributeValue = _Any | string | Subscribable<_Any> | Ref<any>;
-export type Attributes = Record<string, AttributeValue>;
+export type Attributes = Map<string, AttributeValue>;
 
 export interface VirtualElement {
   readonly __p: PostactIdentifier.VirtualElement;

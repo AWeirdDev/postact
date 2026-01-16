@@ -1,32 +1,34 @@
-import { PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "./_internals";
 import type { VirtualItem } from "./vdom/structure";
 
-export type PropsWithChildren<K = {}> = { children: VirtualItem } & K;
+export type PropsWithChildren<K = {}> = { children?: VirtualItem } & K;
 type ComponentInnerFn<K = {}> = (props: PropsWithChildren<K>) => VirtualItem;
 
-interface ComponentInstance {
+export interface ComponentInstance<K = {}> {
   __p: PostactIdentifier.ComponentInstance;
-  result: VirtualItem;
+  props: K;
+  ptr: ComponentInnerFn<K>;
 }
 
-interface ComponentInner {
+interface ComponentInner<K = {}> {
   __p: PostactIdentifier.ComponentPointer;
-  ptr: Function;
+  ptr: ComponentInnerFn<K>;
 }
 
 export type Component<K> = ((
   props: PropsWithChildren<K>,
-) => ComponentInstance) &
-  ComponentInner;
+) => ComponentInstance<K>) &
+  Readonly<ComponentInner<K>>;
 
-export function component<K>(fn: ComponentInnerFn<K>): Readonly<Component<K>> {
+export function component<K>(fn: ComponentInnerFn<K>): Component<K> {
   return Object.freeze(
     Object.assign(
       (props: PropsWithChildren<K>) => {
         return {
           // yes. this is needed.
           __p: PostactIdentifier.ComponentInstance as PostactIdentifier.ComponentInstance,
-          result: fn(props),
+          props,
+          ptr: fn,
         };
       },
       {
@@ -36,4 +38,12 @@ export function component<K>(fn: ComponentInnerFn<K>): Readonly<Component<K>> {
       },
     ),
   );
+}
+
+export function isComponentPtr(item: any): item is Component<any> {
+  return isPostactIdent(PostactIdentifier.ComponentPointer, item);
+}
+
+export function isComponentInstance(item: any): item is ComponentInstance {
+  return isPostactIdent(PostactIdentifier.ComponentInstance, item);
 }

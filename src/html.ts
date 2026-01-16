@@ -10,6 +10,12 @@ import type { Subscribable } from "./subscribable";
 import { isPrimitive, unescape } from "./utilities";
 import { isPostactEcosystem, PostactIdentifier } from "./_internals";
 import { ArgumentType, identifyArgument, type Argument } from "./argument";
+import {
+  isComponentInstance,
+  isComponentPtr,
+  type Component,
+  type ComponentInstance,
+} from "./component";
 
 class ParseError extends Error {
   constructor(reason: string) {
@@ -60,6 +66,16 @@ class ParseError extends Error {
 
   static noBackslashBeforeInsert(): ParseError {
     return new ParseError("there should be no backslash (\\) before ${...}");
+  }
+
+  static typeCheckComponentProps(): ParseError {
+    return new ParseError(
+      "**do not** add attributes like how you would in JSX." +
+        "this may lead to runtime type inconsistencies. " +
+        "instead, run components (e.g., `Page`) with attributes like this: \n" +
+        "  html`<${Page({ hello: 'world' })} />`\n" +
+        "this ensures runtime type safety.",
+    );
   }
 }
 
@@ -124,8 +140,16 @@ class HTMLParser {
       const [shouldInsert, chr] = n;
 
       if (chr == "<") {
-        if (shouldInsert) throw ParseError.noInsertInTagNames();
-        children.push(this.processConsumption());
+        if (shouldInsert) {
+          const insertion = this.getInsertion();
+          if (isComponentPtr(insertion) || isComponentInstance(insertion)) {
+            children.push(this.processComponent(insertion));
+            continue;
+          } else {
+            throw ParseError.noInsertInTagNames();
+          }
+        }
+        children.push(this.processElement());
       } else if (shouldInsert) {
         // then it's quite possibly in the end
         const vi = transformArgToVirtualItem(this.getInsertion()!);
@@ -142,7 +166,7 @@ class HTMLParser {
     };
   }
 
-  processConsumption(): VirtualElement {
+  processElement(): VirtualElement {
     const [startTag, attributes, selfClosing, afterTagShouldInsert] =
       this.consumeTag();
 
@@ -161,7 +185,11 @@ class HTMLParser {
     const children = this.consumeChildren(afterTagShouldInsert);
     const endTag = this.consumeEndTag();
 
-    if (startTag !== endTag) throw ParseError.tagMismatch(startTag, endTag);
+    if (startTag !== endTag)
+      throw ParseError.tagMismatch(
+        startTag,
+        typeof endTag === "string" ? endTag : "[component]",
+      );
 
     return {
       __p: PostactIdentifier.VirtualElement,
@@ -172,12 +200,47 @@ class HTMLParser {
     };
   }
 
+  processComponent(insertion: Component<any> | ComponentInstance): VirtualItem {
+    const [attributes, selfClosing, afterTagShouldInsert] =
+      this.consumeAttributes();
+
+    // don't do: html`<${Fruits} apples=${10} />`
+    // this is BAD (actually, horrible) for runtime!
+    // instead, use html`<${Fruits({ apples: 10 })} />`
+    //
+    // also, if you *do* have additional props for your component
+    // and you you created components using the `component()` function,
+    // typescript will warn you of this.
+    if (attributes.size > 0) throw ParseError.typeCheckComponentProps();
+
+    if (selfClosing)
+      return insertion.ptr(isComponentPtr(insertion) ? {} : insertion.props);
+
+    const children = this.consumeChildren(afterTagShouldInsert);
+    const endTag = this.consumeEndTag();
+    if (typeof endTag !== "function")
+      throw ParseError.tagMismatch("[component]", endTag);
+
+    if (!isComponentPtr(endTag))
+      throw new TypeError(
+        "expected component pointer for end tag, got other functions instead",
+      );
+
+    if (endTag.ptr !== insertion.ptr)
+      throw ParseError.tagMismatch("[component A]", "[component B]");
+
+    return insertion.ptr({
+      children: createVf(children),
+      ...(isComponentPtr(insertion) ? {} : insertion.props),
+    });
+  }
+
   /**
    * @returns `[(tag name), (attributes), (self-closing?), (shouldInsert?)]`
    */
   consumeTag(): [
     string,
-    Record<string, AttributeValue | Function>,
+    Map<string, AttributeValue | Function>,
     boolean,
     boolean,
   ] {
@@ -191,7 +254,7 @@ class HTMLParser {
         return [tag, attrs, selfClosing, shouldInsertAfterAttrConsumption];
       }
 
-      if (chr == ">") return [tag, {}, false, shouldInsert];
+      if (chr == ">") return [tag, new Map(), false, shouldInsert];
       if (shouldInsert) throw ParseError.noInsertInTagNames();
 
       if (!/[a-zA-Z0-9-]/.test(chr))
@@ -206,11 +269,11 @@ class HTMLParser {
    * @returns `[(attributes), (self-closing?), (shouldInsert?)]`
    */
   consumeAttributes(): [
-    Record<string, AttributeValue | Function>,
+    Map<string, AttributeValue | Function>,
     boolean,
     boolean,
   ] {
-    const attrs: Record<string, AttributeValue | Function> = {};
+    const attrs: Map<string, AttributeValue | Function> = new Map();
     let name = "";
 
     /**
@@ -225,7 +288,9 @@ class HTMLParser {
       // stop characters
       if (chr == ">") {
         if (name) {
-          attrs[name] = "true";
+          // [MACRO]
+          attrs.set(name, "true");
+          // [/MACRO]
         }
         return [attrs, false, shouldInsert];
       }
@@ -233,7 +298,9 @@ class HTMLParser {
         const [_, c] = this.consumeWhitespace();
         if (c !== ">") throw ParseError.expectedTagClosing();
         if (name) {
-          attrs[name] = "true";
+          // [MACRO]
+          attrs.set(name, "true");
+          // [/MACRO]
         }
         return [attrs, true, shouldInsert];
       }
@@ -256,7 +323,9 @@ class HTMLParser {
       }
 
       if (chr === " ") {
-        attrs[name] = "true";
+        // [MACRO]
+        attrs.set(name, "true");
+        // [/MACRO]
         name = "";
         state = 0;
         continue;
@@ -268,7 +337,7 @@ class HTMLParser {
         : this.consumeStringQuote();
 
       if (value !== null) {
-        attrs[name] = value;
+        attrs.set(name, value);
       }
 
       name = "";
@@ -277,12 +346,16 @@ class HTMLParser {
     }
   }
 
-  consumeEndTag(): string {
+  consumeEndTag(): string | Function {
     const [shouldInsertAfterTagName, chr] = this.consumeWhitespace();
     if (chr !== "/") throw ParseError.expectedTagClosing();
-    if (shouldInsertAfterTagName) throw ParseError.noInsertInTagNames();
+    if (shouldInsertAfterTagName) {
+      const insertion = this.getInsertion();
+      if (typeof insertion === "function") return insertion;
+      throw ParseError.noInsertInTagNames();
+    }
 
-    let name = "";
+    let name: string | Function = "";
 
     /**
      * - `0`: Still collecting.
@@ -293,15 +366,29 @@ class HTMLParser {
     while (true) {
       const [shouldInsert, chr] = this.next()!;
 
-      if (chr === ">") return name.trimEnd();
-      if (shouldInsert) throw ParseError.noInsertInTagNames();
+      if (chr === ">") {
+        if (typeof name === "function") return name;
+        return name.trimEnd();
+      }
 
-      if (/\s/.test(chr)) state = 1;
+      if (shouldInsert) {
+        const insertion = this.getInsertion();
+        if (typeof insertion === "function" && typeof name !== "function") {
+          name = insertion;
+        } else {
+          throw ParseError.noInsertInTagNames();
+        }
+      } else {
+        if (typeof name === "function")
+          throw ParseError.invalidCharacterInTagName(chr);
 
-      if (state == 0 && !/[a-zA-Z0-9-]/.test(chr))
-        throw ParseError.invalidCharacterInTagName(chr);
+        if (/\s/.test(chr)) state = 1;
 
-      name += chr;
+        if (state == 0 && !/[a-zA-Z0-9-]/.test(chr))
+          throw ParseError.invalidCharacterInTagName(chr);
+
+        name += chr;
+      }
     }
   }
 
@@ -352,11 +439,10 @@ class HTMLParser {
           break;
         } else {
           // new tag! niche!
-          const trimmed = text.trimStart();
-          if (trimmed) children.push(createVtn(unescape(trimmed)));
+          if (text.trim()) children.push(createVtn(unescape(text)));
           text = "";
 
-          children.push(this.processConsumption());
+          children.push(this.processElement());
           continue;
         }
       }
@@ -364,8 +450,7 @@ class HTMLParser {
       text += chr;
 
       if (shouldInsert) {
-        const trimmed = text.trimStart();
-        if (trimmed) children.push(createVtn(unescape(trimmed)));
+        if (text.trim()) children.push(createVtn(unescape(text)));
         text = "";
 
         const insertion = this.getInsertion();
@@ -373,8 +458,7 @@ class HTMLParser {
       }
     }
 
-    const trimmed = text.trimStart();
-    if (trimmed) children.push(createVtn(unescape(trimmed)));
+    if (text.trim()) children.push(createVtn(unescape(text)));
     return children;
   }
 }
@@ -440,12 +524,12 @@ function filterListenersFromAttributes<
   K = keyof HTMLElementEventMap,
   F = (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
   A = Attributes,
->(attrs: Record<string, AttributeValue | Function>): [[K, F][], A] {
+>(attrs: Map<string, AttributeValue | Function>): [[K, F][], A] {
   const callbacks: [K, F][] = [];
 
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith("on") && typeof value === "function") {
-      delete attrs[key];
+      attrs.delete(key);
       callbacks.push([key.slice(2) as K, value as F]);
     }
   }

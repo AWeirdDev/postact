@@ -83,7 +83,7 @@ export function isPostactIdent<K extends PostactIdentifier>(
 ): item is K {
   if (item === null) return false;
   if (
-    typeof item === "object" &&
+    (typeof item === "object" || typeof item === "function") &&
     Object.hasOwn(item, "__p") &&
     item["__p"] == ident
   )

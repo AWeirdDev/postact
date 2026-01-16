@@ -24,6 +24,14 @@ export { html } from "./html";
 export { css } from "./css";
 export { text } from "./text";
 
+// components
+export {
+  component,
+  type PropsWithChildren,
+  type Component,
+  type ComponentInstance,
+} from "./component";
+
 // routes support
 export { route, type RouteContext } from "./routes";
 

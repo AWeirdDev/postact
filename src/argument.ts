@@ -36,8 +36,8 @@ export type Argument =
   | Subscribable<any>
   | VirtualItem
   | EventHandler
-  | Component<{}>
-  | ComponentInstance;
+  | Component<any>
+  | ComponentInstance<any>;
 
 export enum ArgumentType {
   Empty,
