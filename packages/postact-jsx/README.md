@@ -1,15 +1,17 @@
 # @postact/jsx
+This adds JSX support to [Postact](https://github.com/AWeirdDev/postact), if you'd like.
 
-To install dependencies:
+It took me forever, so please enjoy this.
 
-```bash
-bun install
+You can just add `@postact/jsx` as the JSX input source in your `tsconfig.json`:
+
+```jsonc
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@postact/jsx",
+  }
+}
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Then you should be good to go. Maybe. I don't fucking know.

@@ -5,7 +5,6 @@ import {
   type Ref,
   type Subscribable,
   type VirtualElement,
-  type VirtualFragment,
   type VirtualItem,
 } from "@postact/core";
 
@@ -124,7 +123,7 @@ function jsx(type: Symbol | Function | string, props: any): JSX.Element {
   } else if (typeof type === "function") {
     return type(props);
   } else {
-    throw new TypeError("unknown type");
+    throw new TypeError(`unknown type: ${JSON.stringify(type)}`);
   }
 }
 
