@@ -44,8 +44,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "publishing with tag: $tag"
 
-      - name: Publish @postact/core
-        working-directory: packages/postact-core
+      - name: Publish
         run: |
           for pkg_json in packages/*/package.json; do
             pkg_dir=$(dirname "$pkg_json")
