@@ -11,7 +11,7 @@ function getName(key: string): string {
   let idx = 0;
 
   while (idx < key.length) {
-    const char = key[idx];
+    const char = key[idx]!;
 
     // isUpperCase
     if (char == char.toUpperCase()) {

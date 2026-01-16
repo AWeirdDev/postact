@@ -16,7 +16,7 @@ export {
 } from "./state";
 export { dependent } from "./dependent";
 export { later } from "./later";
-export { ref } from "./ref";
+export { ref, type Ref } from "./ref";
 export type { Subscriber, Subscribable } from "./subscribable";
 
 // display-related
@@ -36,9 +36,15 @@ export {
 export { route, type RouteContext } from "./routes";
 
 // vdom -> document dom
-export type {
-  VirtualElement,
-  VirtualItem,
-  VirtualTextNode,
+export {
+  type VirtualElement,
+  type VirtualItem,
+  type VirtualTextNode,
+  type VirtualFragment,
+  createVf,
+  createVtn,
+  isVe,
+  isVf,
+  isVtn,
 } from "./vdom/structure";
 export { realize, type ToFragOptions } from "./vdom/client";

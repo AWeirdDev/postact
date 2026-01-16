@@ -1,33 +1,26 @@
 {
-  "name": "@postact/core",
-  "version": "0.0.8",
-  "keywords": [
-    "virtual dom",
-    "jsx",
-    "html",
-    "states",
-    "client side",
-    "template",
-    "library"
-  ],
-  "author": {
-    "email": "awdjared@gmail.com",
-    "name": "AWeirdDev",
-    "url": "https://github.com/AWeirdDev"
+  "name": "postact",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "docs:dev": "bun --bun vitepress dev docs",
+    "docs:build": "bun --bun vitepress build docs",
+    "docs:preview": "bun --bun vitepress preview docs",
+    "build": "bun run --filter './packages/*' build"
   },
-  "repository": {
-    "url": "https://github.com/AWeirdDev/postact"
+  "dependencies": {
+    "@postact/core": "workspace:*",
+    "@postact/jsx": "workspace:*"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@postact/core": "^0.0.8",
     "@shikijs/vitepress-twoslash": "^3.20.0",
     "@testing-library/dom": "^10.4.1",
     "@types/bun": "latest",
     "@vitest/ui": "^4.0.16",
     "jsdom": "^27.4.0",
+    "preact": "^10.28.2",
     "remark-shiki-twoslash": "^3.1.3",
     "rolldown": "^1.0.0-beta.9-commit.d91dfb5",
     "shiki": "^3.20.0",
@@ -35,24 +28,10 @@
     "vitepress": "^2.0.0-alpha.15",
     "vitest": "^4.0.16"
   },
-  "dependencies": {},
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5"
   },
-  "declaration": true,
-  "declarationMap": true,
-  "files": [
-    "src/**/*",
-    "dist/*"
-  ],
-  "license": "MIT",
-  "moduleResolution": "Bundler",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && rolldown -m -c",
-    "docs:dev": "bun --bun vitepress dev docs",
-    "docs:build": "bun --bun vitepress build docs",
-    "docs:preview": "bun --bun vitepress preview docs"
-  },
-  "trustedDependencies": []
+  "workspaces": [
+    "packages/*"
+  ]
 }

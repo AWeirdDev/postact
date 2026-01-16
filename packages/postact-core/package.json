@@ -1,0 +1,53 @@
+{
+  "name": "@postact/core",
+  "version": "0.0.8",
+  "keywords": [
+    "virtual dom",
+    "jsx",
+    "html",
+    "states",
+    "client side",
+    "template",
+    "library"
+  ],
+  "author": {
+    "email": "awdjared@gmail.com",
+    "name": "AWeirdDev",
+    "url": "https://github.com/AWeirdDev"
+  },
+  "repository": {
+    "url": "https://github.com/AWeirdDev/postact"
+  },
+
+  "main": "./dist/index.cjs",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "development": "./src/index.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+
+  "dependencies": {},
+  "peerDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "declaration": true,
+  "declarationMap": true,
+  "files": [
+    "./src/**/*",
+    "./dist/*"
+  ],
+  "license": "MIT",
+  "moduleResolution": "Bundler",
+  "scripts": {
+    "build": "tsc && rolldown -m -c"
+  },
+  "trustedDependencies": []
+}

@@ -85,8 +85,8 @@ export function route<Path extends string>(
     for (let i = 0; i < pathSplits.length; i++) {
       if (i >= args.length) return;
 
-      const split = decodeURIComponent(pathSplits[i]);
-      const arg = args[i];
+      const split = decodeURIComponent(pathSplits[i]!);
+      const arg = args[i]!;
 
       if (arg.startsWith(":")) {
         if (!split) return;
