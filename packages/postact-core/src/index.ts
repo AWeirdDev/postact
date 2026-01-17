@@ -9,7 +9,7 @@ export { ref, type Ref } from "./ref";
 export type { Subscriber, Subscribable } from "./subscribable";
 
 // display-related
-export { html } from "./html";
+export { html, filterListenersFromAttributes } from "./html";
 export { css } from "./css";
 export { text } from "./text";
 export { transformArgToVirtualItem } from "./argument";

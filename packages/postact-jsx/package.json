@@ -1,21 +1,19 @@
 {
   "name": "@postact/jsx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "JSX support for Postact.",
   "author": {
     "name": "AWeirdDev",
     "email": "awdjared@gmail.com",
     "url": "https://github.com/AWeirdDev"
   },
+  "repository": {
+    "url": "https://github.com/AWeirdDev/postact"
+  },
   "license": "MIT",
   "type": "module",
+
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
-    },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
       "import": "./dist/jsx-runtime.js",

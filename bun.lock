@@ -15,7 +15,6 @@
         "@vitest/ui": "^4.0.16",
         "jsdom": "^27.4.0",
         "oxfmt": "^0.24.0",
-        "preact": "^10.28.2",
         "remark-shiki-twoslash": "^3.1.3",
         "rolldown": "^1.0.0-beta.9-commit.d91dfb5",
         "shiki": "^3.20.0",
@@ -29,13 +28,14 @@
     },
     "packages/postact-core": {
       "name": "@postact/core",
-      "version": "0.0.8",
+      "version": "0.0.9",
       "peerDependencies": {
         "typescript": "^5.9.3",
       },
     },
     "packages/postact-jsx": {
       "name": "@postact/jsx",
+      "version": "0.0.5",
       "dependencies": {
         "@postact/core": "workspace:*",
       },
@@ -668,8 +668,6 @@
     "picomatch": ["picomatch@4.0.3", "", {}, "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q=="],
 
     "postcss": ["postcss@8.5.6", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg=="],
-
-    "preact": ["preact@10.28.2", "", {}, "sha512-lbteaWGzGHdlIuiJ0l2Jq454m6kcpI1zNje6d8MlGAFlYvP2GO4ibnat7P74Esfz4sPTdM6UxtTwh/d3pwM9JA=="],
 
     "pretty-format": ["pretty-format@27.5.1", "", { "dependencies": { "ansi-regex": "^5.0.1", "ansi-styles": "^5.0.0", "react-is": "^17.0.1" } }, "sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ=="],
 

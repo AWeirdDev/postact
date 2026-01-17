@@ -116,7 +116,7 @@ function jsx(type: Symbol | Function | string, props: any): JSX.Element {
     return {
       __p: PostactIdentifier.VirtualElement,
       tag: type,
-      attributes: props,
+      attributes: new Map(Object.entries(props)),
       children: mapChildren(children),
       listeners: [],
     } satisfies VirtualElement;

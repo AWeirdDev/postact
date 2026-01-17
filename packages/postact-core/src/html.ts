@@ -462,7 +462,7 @@ function argToAttrValueOrFn(arg: Argument): AttributeValue | Function | null {
   }
 }
 
-function filterListenersFromAttributes<
+export function filterListenersFromAttributes<
   K = keyof HTMLElementEventMap,
   F = (event: HTMLElementEventMap[keyof HTMLElementEventMap]) => void,
   A = Attributes,
