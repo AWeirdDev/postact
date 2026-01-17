@@ -29,12 +29,12 @@
   ],
   "type": "module",
   "dependencies": {
-    "@postact/core": "workspace:*"
+    "@postact/core": "workspace:*",
+    "@postact/jsx": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "rolldown": "^1.0.0-beta.60",
-    "@postact/jsx": "workspace:*"
+    "rolldown": "^1.0.0-beta.60"
   },
   "peerDependencies": {
     "typescript": "^5"
