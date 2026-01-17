@@ -6,7 +6,7 @@ import { BaseSubscribable } from "./subscribable";
  */
 const GLOBAL_ROUTER: BaseSubscribable<{ pathname: string; hash: string }> = new BaseSubscribable({
   pathname: "",
-  hash: " ",
+  hash: "",
 });
 let GLOBAL_HAS_REGISTERED_HASH_LISTENER: boolean = false;
 
