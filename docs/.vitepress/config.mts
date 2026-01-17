@@ -88,12 +88,7 @@ export default defineConfig({
           },
           {
             text: "Utilities",
-            items: [
-              {
-                text: "Local storage",
-                link: "/utilities/local-storage",
-              },
-            ],
+            items: [],
           },
         ],
       },

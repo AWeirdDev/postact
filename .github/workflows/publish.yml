@@ -23,7 +23,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: bun ci
+        run: rm -f bun.lock; bun ci
 
       - name: Build packages
         run: bun run build
@@ -50,13 +50,16 @@ jobs:
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
 
+            bun pm pack
+            tarball=$(ls *.tgz)
+
             echo "publishing $pkg_name ($pkg_dir)"
 
             if npm view "$pkg_name" version &>/dev/null; then
               (
                 cd "$pkg_dir" || exit 1
 
-                npm publish \
+                npm publish "$tarball" \
                   --access public \
                   --tag ${{ steps.npm-tag.outputs.tag }}
 

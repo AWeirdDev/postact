@@ -34,9 +34,9 @@
       "version": "0.0.2",
       "dependencies": {
         "@postact/core": "workspace:*",
+        "@postact/jsx": "workspace:*",
       },
       "devDependencies": {
-        "@postact/jsx": "workspace:*",
         "@types/bun": "latest",
         "rolldown": "^1.0.0-beta.60",
       },
