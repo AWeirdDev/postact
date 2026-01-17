@@ -13,6 +13,7 @@
         "@types/bun": "latest",
         "@vitest/ui": "^4.0.17",
         "@vue/compiler-dom": "^3.5.26",
+        "@vue/runtime-dom": "^3.5.26",
         "@vue/server-renderer": "^3.5.26",
         "jsdom": "^27.4.0",
         "oxfmt": "^0.24.0",
