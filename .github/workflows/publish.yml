@@ -50,7 +50,9 @@ jobs:
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
 
+            cd "$pkg_dir"
             bun pm pack
+            cd "../../"
             tarball=$(ls *.tgz)
 
             echo "publishing $pkg_name ($pkg_dir)"
