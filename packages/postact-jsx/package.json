@@ -38,6 +38,10 @@
     "@types/bun": "latest",
     "oxfmt": "^0.24.0"
   },
+  "files": [
+    "./src/**/*",
+    "./dist/*"
+  ],
   "peerDependencies": {
     "typescript": "^5"
   },
