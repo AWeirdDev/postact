@@ -9,11 +9,12 @@
     "docs:build": "bun --bun vitepress build docs",
     "docs:preview": "bun --bun vitepress preview docs",
     "build": "bun run --filter './packages/*' build",
-    "fmt": "oxfmt '!**/dist/**/*' '!**/*.json' packages/postact-core"
+    "fmt": "oxfmt '!**/dist/**/*' '!**/*.{json,md,html}' packages/"
   },
   "dependencies": {
     "@postact/core": "workspace:*",
-    "@postact/jsx": "workspace:*"
+    "@postact/jsx": "workspace:*",
+    "@postact/vite-plugin-jsx": "workspace:*"
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^3.21.0",

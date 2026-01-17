@@ -1,5 +1,6 @@
 import {
   createVf,
+  filterListenersFromAttributes,
   PostactIdentifier,
   transformArgToVirtualItem,
   type Ref,
@@ -113,12 +114,13 @@ function jsx(type: Symbol | Function | string, props: any): JSX.Element {
       delete props["children"];
     }
 
+    const [listeners, attrs] = filterListenersFromAttributes(new Map(Object.entries(props)));
     return {
       __p: PostactIdentifier.VirtualElement,
       tag: type,
-      attributes: new Map(Object.entries(props)),
+      attributes: attrs,
       children: mapChildren(children),
-      listeners: [],
+      listeners,
     } satisfies VirtualElement;
   } else if (typeof type === "function") {
     return type(props);

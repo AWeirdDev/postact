@@ -469,7 +469,7 @@ export function filterListenersFromAttributes<
 >(attrs: Map<string, AttributeValue | Function>): [[K, F][], A] {
   const callbacks: [K, F][] = [];
 
-  for (const [key, value] of Object.entries(attrs)) {
+  for (const [key, value] of attrs.entries()) {
     if (key.startsWith("on") && typeof value === "function") {
       attrs.delete(key);
       callbacks.push([key.slice(2) as K, value as F]);

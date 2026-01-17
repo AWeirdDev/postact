@@ -33,5 +33,5 @@
     { "path": "./packages/postact-jsx" },
   ],
   "include": ["packages/*/src/*"],
-  "exclude": ["vite.config.js"],
+  "exclude": ["vite.config.ts"],
 }
