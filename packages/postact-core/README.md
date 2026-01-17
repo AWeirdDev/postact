@@ -1,6 +1,8 @@
 # @postact/core
 Simple, fast, zero-dependency web dev.
 
+[GitHub](https://github.com/AWeirdDev/postact)
+
 ```html
 <div id="app"></div>
 ```
