@@ -1,4 +1,12 @@
-import { ensureWindow, BaseSubscribable, component, type Renderable, type PropsWithChildren, type Subscribable, state } from "@postact/core";
+import {
+  ensureWindow,
+  BaseSubscribable,
+  component,
+  type Renderable,
+  type PropsWithChildren,
+  type Subscribable,
+  state,
+} from "@postact/core";
 
 /**
  * A global router. Used for **subscribing and publishing only**.

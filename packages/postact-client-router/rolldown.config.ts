@@ -1,7 +1,7 @@
 import { defineConfig } from "rolldown";
 
 export default defineConfig({
-  input: "./index.ts",
+  input: "./index.tsx",
   output: [
     {
       dir: "./dist",
@@ -10,4 +10,8 @@ export default defineConfig({
     },
   ],
   external: [],
+  jsx: {
+    mode: "automatic",
+    jsxImportSource: "@postact/jsx"
+  },
 });

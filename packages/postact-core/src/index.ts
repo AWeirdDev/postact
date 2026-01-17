@@ -6,7 +6,12 @@ export { state, type Checker, type Updater, type UpdateDispatch } from "./subscr
 export { dependent } from "./subscribables/dependent";
 export { later } from "./subscribables/later";
 export { ref, type Ref } from "./subscribables/ref";
-export { type Subscriber, type Subscribable, BaseSubscribable, isSubscribable } from "./subscribables/base";
+export {
+  type Subscriber,
+  type Subscribable,
+  BaseSubscribable,
+  isSubscribable,
+} from "./subscribables/base";
 
 // display-related
 export { html, filterListenersFromAttributes } from "./html";

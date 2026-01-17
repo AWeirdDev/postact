@@ -24,7 +24,7 @@
   "declaration": true,
   "declarationMap": true,
   "files": [
-    "./index.ts",
+    "./index.tsx",
     "./dist/*"
   ],
   "type": "module",
