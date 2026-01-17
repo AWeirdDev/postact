@@ -1,7 +1,7 @@
 # Local storage
 Store values in the local storage.
 
-```ts
+```ts twoslash
 import { localStorage } from "@postact/core";
 
 // Create an entry for the key "apples"
