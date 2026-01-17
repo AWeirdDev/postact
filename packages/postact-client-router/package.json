@@ -1,0 +1,43 @@
+{
+  "name": "@postact/client-router",
+  "version": "0.0.2",
+  "author": {
+    "email": "awdjared@gmail.com",
+    "name": "AWeirdDev",
+    "url": "https://github.com/AWeirdDev"
+  },
+  "repository": {
+    "url": "https://github.com/AWeirdDev/postact"
+  },
+
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && rolldown -m -c"
+  },
+  "declaration": true,
+  "declarationMap": true,
+  "files": [
+    "./index.ts",
+    "./dist/*"
+  ],
+  "type": "module",
+  "dependencies": {
+    "@postact/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "rolldown": "^1.0.0-beta.60",
+    "@postact/jsx": "workspace:*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": false
+}
