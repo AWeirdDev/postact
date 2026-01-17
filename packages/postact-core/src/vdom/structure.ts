@@ -1,7 +1,7 @@
 import { isPostactIdent, PostactIdentifier } from "../_internals";
 
-import type { Ref } from "../ref";
-import type { Subscribable } from "../subscribable";
+import type { Ref } from "../subscribables/ref";
+import type { Subscribable } from "../subscribables/base";
 
 type _Any = number | string | boolean | null | undefined;
 export type AttributeValue = _Any | string | Subscribable<_Any> | Ref<any>;

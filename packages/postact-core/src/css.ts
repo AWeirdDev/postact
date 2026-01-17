@@ -1,5 +1,5 @@
 import { isPostactIdent, PostactIdentifier } from "./_internals";
-import { isSubscribable, type Subscribable } from "./subscribable";
+import { isSubscribable, type Subscribable } from "./subscribables/base";
 import { anyToString, text, textWithOptions } from "./text";
 
 /**

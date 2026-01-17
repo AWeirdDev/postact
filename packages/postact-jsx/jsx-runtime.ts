@@ -7,10 +7,13 @@ import {
   type Subscribable,
   type VirtualElement,
   type VirtualItem,
+  type Component,
+  type ComponentInstance,
+  isComponentPtr,
 } from "@postact/core";
 
 export declare namespace JSX {
-  type Element = VirtualItem;
+  type Element = VirtualItem | ComponentInstance;
   type AnyChildren =
     | Element
     | string
@@ -99,7 +102,7 @@ function mapChildren(items: any[]) {
   return items.map((item) => transformArgToVirtualItem(item));
 }
 
-function jsx(type: Symbol | Function | string, props: any): JSX.Element {
+function jsx(type: Symbol | Function | string | Component<any>, props: any): JSX.Element {
   const hasChildren = typeof props.children !== "undefined" && props.children !== null;
   const children = !hasChildren
     ? []
@@ -109,7 +112,9 @@ function jsx(type: Symbol | Function | string, props: any): JSX.Element {
 
   if (type === Fragment) {
     return createVf(mapChildren(children));
-  } else if (typeof type === "string") {
+  }
+
+  if (typeof type === "string") {
     if (hasChildren) {
       delete props["children"];
     }
@@ -122,11 +127,17 @@ function jsx(type: Symbol | Function | string, props: any): JSX.Element {
       children: mapChildren(children),
       listeners,
     } satisfies VirtualElement;
-  } else if (typeof type === "function") {
-    return type(props);
-  } else {
-    throw new TypeError(`unknown type: ${JSON.stringify(type)}`);
   }
+
+  if (isComponentPtr(type)) {
+    return type.ptr(props);
+  }
+
+  if (typeof type === "function") {
+    return type(props);
+  }
+
+  throw new TypeError(`unknown type: ${JSON.stringify(type)}`);
 }
 
 export { jsx, jsx as jsxs, Fragment };

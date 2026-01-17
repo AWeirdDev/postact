@@ -1,5 +1,5 @@
 import { isPrimitive } from "./utilities";
-import { isSubscribable, type Subscribable } from "./subscribable";
+import { isSubscribable, type Subscribable } from "./subscribables/base";
 
 import { createVf, createVtn, type VirtualItem } from "./vdom/structure";
 import type { Component, ComponentInstance } from "./component";

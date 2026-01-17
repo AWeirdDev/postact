@@ -14,7 +14,7 @@
   "dependencies": {
     "@postact/core": "workspace:*",
     "@postact/jsx": "workspace:*",
-    "@postact/vite-plugin-jsx": "workspace:*"
+    "@postact/client-router": "workspace:*"
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^3.21.0",

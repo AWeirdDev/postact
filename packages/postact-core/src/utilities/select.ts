@@ -1,6 +1,4 @@
-import type { VirtualItem } from "../vdom/structure";
-import { realize } from "../vdom/client";
-import { render } from "./render";
+import { render, type Renderable } from "./render";
 
 interface SelectionUtils {
   /**
@@ -11,7 +9,7 @@ interface SelectionUtils {
    * select("#app").render(html`<p>Hello, world!</p>`)
    * ```
    */
-  render: (vi: VirtualItem) => void;
+  render: (re: Renderable) => void;
 }
 
 /**

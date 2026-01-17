@@ -1,4 +1,4 @@
-import { isPostactIdent, PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "../_internals";
 
 export type Subscriber<T> = (value: T) => any;
 

@@ -87,10 +87,6 @@ export default defineConfig({
             link: "/ref",
           },
           {
-            text: "Routes",
-            link: "/routes",
-          },
-          {
             text: "Utilities",
             items: [
               {

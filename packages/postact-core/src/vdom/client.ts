@@ -10,8 +10,8 @@ import {
 import { ensureWindow, isPrimitive } from "../utilities";
 
 import { simpleRandString } from "../_internals";
-import { isSubscribable } from "../subscribable";
-import { isRef } from "../ref";
+import { isSubscribable } from "../subscribables/base";
+import { isRef } from "../subscribables/ref";
 
 function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   const fragment = window.document.createDocumentFragment();

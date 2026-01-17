@@ -6,7 +6,7 @@ import {
   type VirtualElement,
   type VirtualItem,
 } from "./vdom/structure";
-import type { Subscribable } from "./subscribable";
+import type { Subscribable } from "./subscribables/base";
 import { unescape } from "./utilities";
 import { PostactIdentifier } from "./_internals";
 import {

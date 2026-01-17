@@ -1,6 +1,6 @@
 import { ArgumentType, identifyArgument, type Argument } from "./argument";
-import { dependent } from "./dependent";
-import { isSubscribable, type Subscribable } from "./subscribable";
+import { dependent } from "./subscribables/dependent";
+import { isSubscribable, type Subscribable } from "./subscribables/base";
 import { isPrimitive } from "./utilities";
 
 /**

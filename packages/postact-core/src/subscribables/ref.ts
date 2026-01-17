@@ -1,5 +1,5 @@
-import { isPostactIdent, PostactIdentifier } from "./_internals";
-import { type Subscribable, type Subscriber } from "./subscribable";
+import { isPostactIdent, PostactIdentifier } from "../_internals";
+import { type Subscribable, type Subscriber } from "./base";
 
 class RefSubscribable<T> implements Subscribable<T | null> {
   __p: PostactIdentifier.Ref = PostactIdentifier.Ref;

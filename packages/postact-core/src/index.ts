@@ -1,12 +1,12 @@
 // utilities
-export { select, ensureWindow, unescape, render, localStorage } from "./utilities";
+export { select, ensureWindow, unescape, render, type Renderable } from "./utilities";
 
 // subscribables
-export { state, type Checker, type Updater, type UpdateDispatch } from "./state";
-export { dependent } from "./dependent";
-export { later } from "./later";
-export { ref, type Ref } from "./ref";
-export type { Subscriber, Subscribable } from "./subscribable";
+export { state, type Checker, type Updater, type UpdateDispatch } from "./subscribables/state";
+export { dependent } from "./subscribables/dependent";
+export { later } from "./subscribables/later";
+export { ref, type Ref } from "./subscribables/ref";
+export { type Subscriber, type Subscribable, BaseSubscribable, isSubscribable } from "./subscribables/base";
 
 // display-related
 export { html, filterListenersFromAttributes } from "./html";
@@ -17,13 +17,12 @@ export { transformArgToVirtualItem } from "./argument";
 // components
 export {
   component,
+  isComponentInstance,
+  isComponentPtr,
   type PropsWithChildren,
   type Component,
   type ComponentInstance,
 } from "./component";
-
-// routes support
-export { route, type RouteContext } from "./routes";
 
 // vdom -> document dom
 export {

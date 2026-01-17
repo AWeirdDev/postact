@@ -1,5 +1,5 @@
-import { isPostactIdent, PostactIdentifier } from "./_internals";
-import type { Subscribable, Subscriber } from "./subscribable";
+import { isPostactIdent, PostactIdentifier } from "../_internals";
+import type { Subscribable, Subscriber } from "./base";
 
 export type UpdateDispatch<T> = (current: T) => T;
 export type Updater<T> = UpdateDispatch<T> | T;

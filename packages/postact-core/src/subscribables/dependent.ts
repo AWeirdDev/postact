@@ -1,6 +1,6 @@
-import type { Subscribable, Subscriber } from "./subscribable";
+import type { Subscribable, Subscriber } from "./base";
 
-import { isPostactIdent, PostactIdentifier } from "./_internals";
+import { isPostactIdent, PostactIdentifier } from "../_internals";
 
 type WrapTupleWithSubscribables<T extends readonly unknown[]> = {
   [K in keyof T]: Subscribable<T[K]>;

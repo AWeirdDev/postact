@@ -42,6 +42,6 @@ export function isComponentPtr(item: any): item is Component<any> {
   return isPostactIdent(PostactIdentifier.ComponentPointer, item);
 }
 
-export function isComponentInstance(item: any): item is ComponentInstance {
+export function isComponentInstance(item: any): item is ComponentInstance<any> {
   return isPostactIdent(PostactIdentifier.ComponentInstance, item);
 }
