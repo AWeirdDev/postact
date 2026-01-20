@@ -1,0 +1,50 @@
+{
+  "name": "@postact/serde",
+  "version": "0.0.1",
+  "author": {
+    "email": "awdjared@gmail.com",
+    "name": "AWeirdDev",
+    "url": "https://github.com/AWeirdDev"
+  },
+  "repository": {
+    "url": "https://github.com/AWeirdDev/postact"
+  },
+
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "development": "./src/index.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@postact/core": "^0.0.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "rolldown": "^1.0.0-beta.59"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "files": [
+    "src/**/*",
+    "dist/*"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --build --clean && tsc --build && rolldown -m -c"
+  },
+  "trustedDependencies": []
+}
