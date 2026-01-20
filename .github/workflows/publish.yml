@@ -41,9 +41,13 @@ jobs:
     needs: [build]
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
     steps:
+      - name: Create directory
+        run: mkdir build # just in case
       - uses: actions/download-artifact@v4
         with:
           name: "build"
+          path: build
+
       - name: Determine npm tag
         id: npm-tag
         run: |
@@ -62,7 +66,6 @@ jobs:
 
       - name: Publish
         run: |
-          ls
           for pkg_json in build/*/package.json; do
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
