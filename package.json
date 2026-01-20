@@ -9,7 +9,7 @@
     "docs:dev": "bun --bun vitepress dev docs",
     "docs:build": "bun --bun vitepress build docs",
     "docs:preview": "bun --bun vitepress preview docs",
-    "build": "bun run --filter './packages/*' build",
+    "build": "bun run build.js",
     "fmt": "oxfmt '!**/dist/**/*' '!**/*.{json,md,html}' packages/"
   },
   "dependencies": {

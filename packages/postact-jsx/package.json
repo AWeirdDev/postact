@@ -26,7 +26,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && rolldown -m -c",
+    "build": "tsc --build --clean && tsc --build && rolldown -m -c",
     "fmt": "oxfmt jsx-runtime.ts jsx-dev-runtime.ts test.tsx"
   },
   "dependencies": {

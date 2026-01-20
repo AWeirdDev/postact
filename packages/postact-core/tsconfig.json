@@ -8,6 +8,8 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
+    "composite": true,
+    "noEmit": false,
 
     "outDir": "./dist",
     "rootDir": "./src",

@@ -32,14 +32,6 @@
     { "path": "./packages/postact-core" },
     { "path": "./packages/postact-jsx" },
   ],
-  "include": [
-    "packages/*/src/*",
-    "packages/postact-core/src/subscribables/base.ts",
-    "packages/postact-core/src/subscribables/dependent.ts",
-    "packages/postact-core/src/subscribables/state.ts",
-    "packages/postact-core/src/subscribables/ref.ts",
-    "packages/postact-core/src/subscribables/later.ts",
-    "packages/postact-core/src/utilities/routes.ts",
-  ],
+  "include": ["packages/*/src/*"],
   "exclude": ["vite.config.ts"],
 }
