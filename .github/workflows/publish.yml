@@ -53,8 +53,8 @@ jobs:
 
             cd "$pkg_dir"
             bun pm pack
-            cd "../../"
             tarball=$(ls *.tgz)
+            cd "../../"
 
             echo "======> publishing $pkg_name ($pkg_dir)"
 
