@@ -2,8 +2,6 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
@@ -28,32 +26,6 @@ jobs:
       - name: Build packages
         run: bun run build
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: |
-            ./packages/*/
-            !**/node_modules/
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    steps:
-      - name: Create directory
-        run: mkdir build # just in case
-      - uses: actions/download-artifact@v4
-        with:
-          name: "build"
-          path: build
-
-      - uses: oven-sh/setup-bun@v2
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: "https://registry.npmjs.org"
-
       - name: Determine npm tag
         id: npm-tag
         run: |
@@ -72,7 +44,10 @@ jobs:
 
       - name: Publish
         run: |
-          for pkg_json in build/*/package.json; do
+          rm -f bun.lock
+          bun i
+
+          for pkg_json in packages/*/package.json; do
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
 
@@ -81,7 +56,7 @@ jobs:
             cd "../../"
             tarball=$(ls *.tgz)
 
-            echo "publishing $pkg_name ($pkg_dir)"
+            echo "======> publishing $pkg_name ($pkg_dir)"
 
             if npm view "$pkg_name" version &>/dev/null; then
               (
@@ -93,9 +68,9 @@ jobs:
 
                 rm -f "$tarball"
               )
-              echo "successfully published $pkg_name"
+              echo "<====== successfully published $pkg_name"
             else
-              echo "package $pkg_name does not exist on npm yet"
+              echo "x====== package $pkg_name does not exist on npm yet"
             fi
 
             echo
