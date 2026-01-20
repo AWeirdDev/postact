@@ -33,7 +33,7 @@ jobs:
         with:
           name: dist
           path: |
-            ./packages/*/dist/
+            ./packages/*/
 
   publish:
     runs-on: ubuntu-latest
