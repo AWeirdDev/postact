@@ -62,6 +62,7 @@ jobs:
 
       - name: Publish
         run: |
+          ls
           for pkg_json in build/*/package.json; do
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
