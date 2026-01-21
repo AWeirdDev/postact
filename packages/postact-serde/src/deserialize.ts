@@ -1,50 +1,52 @@
 import { ChunksReader } from "./chunks";
-import { MAX_RECURSION_DEPTH } from "./constants";
 import {
   isMeta,
   MetaType,
   Primitive,
   type Complex,
+  type Enum,
   type FixedSizeString,
   type Optional,
   type Schema,
   type Vector,
 } from "./schema";
-import { validateMetaOrThrow, validateSchemaOrThrow } from "./schema/validate";
+import type { SchemaOfType } from "./schema/typing";
 
-export function deserializeFrom(schema: Schema, chunks: ChunksReader, depth: number = 0): any {
-  if (depth > MAX_RECURSION_DEPTH.value)
-    throw new Error(`max recursion depth reached: ${MAX_RECURSION_DEPTH}`);
-
+export function deserializeFrom(chunks: ChunksReader, schema: Schema): any {
   if (isMeta(schema)) {
     switch (schema.t) {
       case MetaType.Complex:
-        const m = new Map();
-        (schema as Complex).d.forEach(([key, { s }]) => {
-          const d = validateSchemaOrThrow(s, deserializeFrom(s, chunks, depth + 1));
-          m.set(key, d);
-        });
-        return m;
+        // safety: schema is defined by the user
+        const complex: Record<string, any> = {};
+        for (const [k, s] of (schema as Complex).d) {
+          complex[k] = deserializeFrom(chunks, s.s);
+        }
+        return complex;
+
       case MetaType.Enum:
-        return validateMetaOrThrow(schema, chunks.getString());
+        const estr = chunks.getString();
+        if (!(schema as Enum).d.includes(estr))
+          throw new TypeError(`expected enum value, one of: ${schema.d.join(", ")}`);
+        return estr;
+
       case MetaType.FixedSizeString:
-        return validateMetaOrThrow(schema, chunks.getFixedString((schema as FixedSizeString).d));
+        return chunks.getFixedString((schema as FixedSizeString).d);
+
       case MetaType.Optional:
-        const presence = chunks.readU8();
-        if (presence === 1)
-          return validateMetaOrThrow(
-            schema,
-            deserializeFrom((schema as Optional).d, chunks, depth + 1),
-          );
-        else return null;
+        const hasData = chunks.readU8();
+        if (!hasData) return null;
+        return deserializeFrom(chunks, (schema as Optional).d);
+
       case MetaType.Vector:
+        const arr = [];
         const length = chunks.readU32();
-        return Array.apply(null, Array(length)).map(() =>
-          validateSchemaOrThrow(schema.d, deserializeFrom((schema as Vector).d, chunks, depth + 1)),
-        );
+        for (let i = 0; i < length; i++) {
+          arr.push(deserializeFrom(chunks, (schema as Vector).d));
+        }
+        return arr;
     }
   } else {
-    switch (schema as Primitive) {
+    switch (schema) {
       case Primitive.BigInt64:
         return chunks.readI64();
       case Primitive.Boolean:
@@ -59,7 +61,7 @@ export function deserializeFrom(schema: Schema, chunks: ChunksReader, depth: num
   }
 }
 
-export function deserialize(schema: Schema, buf: ArrayBuffer): any {
+export function deserialize<T>(schema: SchemaOfType<T>, buf: ArrayBuffer): T {
   const chunks = new ChunksReader(buf);
-  return deserializeFrom(schema, chunks);
+  return deserializeFrom(chunks, schema);
 }

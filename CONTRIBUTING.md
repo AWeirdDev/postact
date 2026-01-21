@@ -44,6 +44,6 @@ Thank you for your contribution ❤️
 
 ***
 
-(c) 2025 AWeirdDev
+(c) 2026 AWeirdDev
 
 [^1]: They only make the project full of bloat. No thank you.

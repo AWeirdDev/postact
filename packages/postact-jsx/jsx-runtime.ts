@@ -71,9 +71,90 @@ export declare namespace JSX {
     | "tagName"
     | "innerHTML"
     | "outerHTML"
-    | "textContent";
+    | "textContent"
+    | "innerText"
+    | "outerText";
 
-  type ExcludedHTMLProps = "children" | "style" | ReadonlyDOMProps | keyof EventHandlers<any>;
+  type CamelToKebab<S extends string> = S extends `${infer A}${infer B}`
+    ? B extends Uncapitalize<B>
+      ? `${Lowercase<A>}${CamelToKebab<B>}`
+      : `${Lowercase<A>}-${CamelToKebab<B>}`
+    : S;
+
+  type ExcludedHTMLProps =
+    | "children"
+    | "style"
+    | "className"
+    | "classList"
+    | "ELEMENT_NODE"
+    | "ATTRIBUTE_NODE"
+    | "TEXT_NODE"
+    | "CDATA_SECTION_NODE"
+    | "ENTITY_REFERENCE_NODE"
+    | "ENTITY_NODE"
+    | "PROCESSING_INSTRUCTION_NODE"
+    | "COMMENT_NODE"
+    | "DOCUMENT_NODE"
+    | "DOCUMENT_TYPE_NODE"
+    | "DOCUMENT_FRAGMENT_NODE"
+    | "NOTATION_NODE"
+    | "DOCUMENT_POSITION_DISCONNECTED"
+    | "DOCUMENT_POSITION_PRECEDING"
+    | "DOCUMENT_POSITION_FOLLOWING"
+    | "DOCUMENT_POSITION_CONTAINS"
+    | "DOCUMENT_POSITION_CONTAINED_BY"
+    | "DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC"
+    | "FILTER_ACCEPT"
+    | "FILTER_REJECT"
+    | "FILTER_SKIP"
+    | "SHOW_ALL"
+    | "SHOW_ELEMENT"
+    | "SHOW_ATTRIBUTE"
+    | "SHOW_TEXT"
+    | "SHOW_CDATA_SECTION"
+    | "SHOW_ENTITY_REFERENCE"
+    | "SHOW_ENTITY"
+    | "SHOW_PROCESSING_INSTRUCTION"
+    | "SHOW_COMMENT"
+    | "SHOW_DOCUMENT"
+    | "SHOW_DOCUMENT_TYPE"
+    | "SHOW_DOCUMENT_FRAGMENT"
+    | "SHOW_NOTATION"
+    | "NONE"
+    | "CAPTURING_PHASE"
+    | "AT_TARGET"
+    | "BUBBLING_PHASE"
+    | "DOM_KEY_LOCATION_STANDARD"
+    | "DOM_KEY_LOCATION_LEFT"
+    | "DOM_KEY_LOCATION_RIGHT"
+    | "DOM_KEY_LOCATION_NUMPAD"
+    | "BUTTON_LEFT"
+    | "BUTTON_MIDDLE"
+    | "BUTTON_RIGHT"
+    | "BUTTON_BACK"
+    | "BUTTON_FORWARD"
+    | "STYLE_RULE"
+    | "IMPORT_RULE"
+    | "MEDIA_RULE"
+    | "FONT_FACE_RULE"
+    | "PAGE_RULE"
+    | "KEYFRAMES_RULE"
+    | "KEYFRAME_RULE"
+    | "NAMESPACE_RULE"
+    | "COUNTER_STYLE_RULE"
+    | "SUPPORTS_RULE"
+    | "DOCUMENT_RULE"
+    | "START_TO_START"
+    | "START_TO_END"
+    | "END_TO_END"
+    | "END_TO_START"
+    | "UNSENT"
+    | "OPENED"
+    | "HEADERS_RECEIVED"
+    | "LOADING"
+    | "DONE"
+    | ReadonlyDOMProps
+    | keyof EventHandlers<any>;
 
   type ExtractProps<T> = {
     [K in keyof T]: T[K] extends Function ? never : K;
@@ -81,10 +162,13 @@ export declare namespace JSX {
 
   type ElementProps<T extends HTMLElement> = Partial<
     Omit<Pick<T, ExtractProps<T>>, ExcludedHTMLProps>
-  >;
+  > & {
+    [`class`]?: string;
+  };
 
-  type HTMLAttributes<T extends HTMLElement> = ElementProps<T> &
-    EventHandlers<T> &
+  type HTMLAttributes<T extends HTMLElement> = {
+    [K in keyof ElementProps<T> as CamelToKebab<K & string>]: ElementProps<T>[K];
+  } & EventHandlers<T> &
     IntrinsicElementsProps & { ref?: Ref<T> };
 
   type IntrinsicElementsBase = {

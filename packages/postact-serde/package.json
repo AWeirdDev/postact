@@ -28,9 +28,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "dependencies": {
-    "@postact/core": "^0.0.8"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/bun": "latest",
     "rolldown": "^1.0.0-beta.59"

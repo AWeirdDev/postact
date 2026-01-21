@@ -42,7 +42,7 @@
     "./dist/*"
   ],
   "license": "MIT",
-  "moduleResolution": "Bundler",
+  "moduleResolution": "bundler",
   "scripts": {
     "build": "tsc --build --clean && tsc --build && rolldown -m -c"
   },

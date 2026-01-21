@@ -12,6 +12,6 @@ export default defineConfig({
   external: [],
   jsx: {
     mode: "automatic",
-    jsxImportSource: "@postact/jsx"
+    jsxImportSource: "@postact/jsx",
   },
 });

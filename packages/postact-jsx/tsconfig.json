@@ -28,6 +28,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
   },
-  "include": ["./jsx-dev-runtime.ts", "./jsx-runtime.ts"],
+  "include": ["./jsx-dev-runtime.ts", "./jsx-runtime.ts", "./test.tsx"],
   "exclude": ["./rolldown.config.ts"]
 }

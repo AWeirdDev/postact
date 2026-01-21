@@ -8,10 +8,12 @@ export default defineConfig({
       file: "dist/index.mjs",
       format: "esm",
       sourcemap: true,
+      minify: true,
     },
     {
       file: "dist/index.cjs",
       format: "cjs",
+      minify: true,
     },
   ],
   external: [],

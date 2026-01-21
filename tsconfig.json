@@ -31,6 +31,8 @@
   "references": [
     { "path": "./packages/postact-core" },
     { "path": "./packages/postact-jsx" },
+    { "path": "./packages/postact-client-router" },
+    { "path": "./packages/postact-serde" },
   ],
   "include": ["packages/*/src/*"],
   "exclude": ["vite.config.ts"],
