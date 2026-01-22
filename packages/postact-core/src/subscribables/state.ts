@@ -4,7 +4,7 @@ import type { Subscribable, Subscriber } from "./base";
 export type UpdateDispatch<T> = (current: T) => T;
 export type Updater<T> = UpdateDispatch<T> | T;
 
-function getUpdaterValue<T>(current: T, upd: Updater<T>): T {
+export function getUpdaterValue<T>(current: T, upd: Updater<T>): T {
   // @ts-ignore
   return typeof upd === "function" ? upd(current) : upd;
 }

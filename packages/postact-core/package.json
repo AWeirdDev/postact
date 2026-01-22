@@ -44,7 +44,8 @@
   "license": "MIT",
   "moduleResolution": "bundler",
   "scripts": {
-    "build": "tsc --build --clean && tsc --build && rolldown -m -c"
+    "build": "tsc --build --clean && tsc --build && rolldown -m -c",
+    "fmt": "oxfmt '!*.{md,json}'"
   },
   "trustedDependencies": []
 }

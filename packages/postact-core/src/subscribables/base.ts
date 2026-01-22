@@ -59,6 +59,9 @@ export class BaseSubscribable<T> implements Subscribable<T> {
     this.#subscribers.delete(pointer);
   }
 
+  /**
+   * Notify all subscribables of the current state value.
+   */
   emit() {
     const value = this.value; // cache
     this.#subscribers.forEach((sub) => sub(value));

@@ -12,6 +12,7 @@ export {
   BaseSubscribable,
   isSubscribable,
 } from "./subscribables/base";
+export { store } from "./subscribables/store";
 
 // display-related
 export { html, filterListenersFromAttributes } from "./html";

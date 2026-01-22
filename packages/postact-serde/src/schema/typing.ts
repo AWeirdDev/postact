@@ -102,7 +102,7 @@ type SchemaFromFields<T extends Record<string, FieldOfType<any>>> =
  * } satisfies Food
  * ```
  */
-function object<T extends Record<string, FieldOfType<any>>>(
+function object_<T extends Record<string, FieldOfType<any>>>(
   inner: T,
 ): SchemaOfType<SchemaFromFields<T>> {
   return Object.freeze({
@@ -156,10 +156,10 @@ function optional<T>(inner: SchemaOfType<T>): SchemaOfType<T | undefined | null>
 }
 
 export {
-  object,
   field,
   array,
   optional,
+  object_ as "object",
   int_ as "int",
   float_ as "float",
   bigint_ as "bigint",

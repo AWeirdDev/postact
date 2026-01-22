@@ -52,11 +52,12 @@ export class Dependent<const T extends readonly unknown[], R> implements Subscri
  * Creates a {@link Subscribable} that reruns `fn` whenever `subscribable` updates.
  * @param subscribable One subscribable.
  * @param fn The function, taking the current subscribable value as the argument.
+ * If not set, defaults to updating to the same value as the subscribable.
  * @param set Sets the default value.
  */
-export function dependent<R, K>(
+export function dependent<K, R = K>(
   subscribable: Subscribable<K>,
-  fn: (args: K) => R,
+  fn?: (args: K) => R,
   set?: R,
 ): Dependent<[K], R>;
 
@@ -64,19 +65,20 @@ export function dependent<R, K>(
  * Creates a {@link Subscribable} that reruns `fn` whenever any of `subscribables` updates.
  * @param subscribables Multiple subscribables.
  * @param fn The function, taking all the current subscribable values in an array as the argument.
+ * If not set, defaults to updating to the same value as the subscribables.
  * @param set Sets the default value.
  */
-export function dependent<R, T extends readonly unknown[]>(
+export function dependent<T extends readonly unknown[], R = T>(
   subscribables: WrapTupleWithSubscribables<T>,
-  fn: (args: T) => R,
+  fn?: (args: T) => R,
   set?: R,
 ): Dependent<T, R>;
 
 /**
  * Dependents.
  */
-export function dependent(arg0: any, fn: any, set?: any) {
-  return new Dependent(arg0, fn, set);
+export function dependent(arg0: any, fn?: any, set?: any) {
+  return new Dependent(arg0, fn ?? ((v) => v), set);
 }
 
 export function isDependent(item: any): item is Dependent<any, any> {
