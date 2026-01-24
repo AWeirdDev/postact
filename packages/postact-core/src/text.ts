@@ -37,7 +37,7 @@ export function textWithOptions(
 ): Subscribable<string> {
   const transformer = options && options.transformer ? options.transformer : anyToString;
 
-  return dependent<string, any>(
+  return dependent<any, string>(
     deps,
     () => {
       let i = 0;
