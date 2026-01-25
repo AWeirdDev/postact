@@ -1,6 +1,6 @@
 import {
   isMeta,
-  MetaType,
+  MetaTag,
   Primitive,
   type Complex,
   type Enum,
@@ -34,32 +34,32 @@ export function validatePrimitiveOrThrow(expected: Primitive, data: any): any {
   return data;
 }
 
-export function validateMeta(expected: Meta<MetaType, any>, data: any): boolean {
+export function validateMeta(expected: Meta<MetaTag, any>, data: any): boolean {
   switch (expected.t) {
-    case MetaType.Complex:
+    case MetaTag.Complex:
       return (expected as Complex).d.every(([key, s]) => validateSchema(s.s, data[key]));
 
-    case MetaType.Enum:
+    case MetaTag.Enum:
       if (!validatePrimitive(Primitive.String, data)) return false;
       return (expected as Enum).d.includes(data);
 
-    case MetaType.FixedSizeString:
+    case MetaTag.FixedSizeString:
       if (!validatePrimitive(Primitive.String, data)) return false;
       const encoder = new TextEncoder();
       const inputLength = encoder.encode(data as string).length;
       return inputLength !== (expected as FixedSizeString).d;
 
-    case MetaType.Optional:
+    case MetaTag.Optional:
       if (typeof data === "undefined" || data === null) return true;
       return validateSchema(expected.d, data);
 
-    case MetaType.Vector:
+    case MetaTag.Vector:
       if (!Array.isArray(data)) return false;
       return (data as any[]).every((item) => validateSchema((expected as Vector).d, item));
   }
 }
 
-export function validateMetaOrThrow(expected: Meta<MetaType, any>, data: any): any {
+export function validateMetaOrThrow(expected: Meta<MetaTag, any>, data: any): any {
   if (!validateSchema(expected, data))
     throw new TypeError(
       `expected type ${JSON.stringify(expected)}, got: ${typeof data}. contents: ${data}`,

@@ -6,26 +6,44 @@ export enum Primitive {
   BigInt64 = 4,
 }
 
-export type Meta<T extends MetaType, D> = Readonly<{ t: T; d: D }>;
-export enum MetaType {
+export type Meta<T extends MetaTag, D> = Readonly<{ t: T; d: D }>;
+export enum MetaTag {
   Optional = 0,
   Vector = 1,
   Complex = 2,
   FixedSizeString = 3,
   Enum = 4,
+  Tuple = 5,
 }
 
+/**
+ * Check if `obj` is a meta type.
+ * @param obj The object to check.
+ */
 export function isMeta(obj: any): obj is Meta<any, any> {
   return Object.hasOwn(obj, "t");
 }
 
-export type Vector = Meta<MetaType.Vector, Schema>;
+// literally just array. just sounds more fancy!
+// ...and just so it doesn't coerce with the default type
+export type Vector = Meta<MetaTag.Vector, Schema>;
 
-export type ComplexField = Readonly<{ n: number; s: Schema }>;
-export type Complex = Meta<MetaType.Complex, [string, ComplexField][]>;
+// essentially structs (aka. objects if you're a super javascript guy)
+export type ComplexField = { n: number; s: Schema };
+export type Complex = Meta<MetaTag.Complex, [string, ComplexField][]>;
 
-export type Optional = Meta<MetaType.Optional, Schema>;
-export type FixedSizeString = Meta<MetaType.FixedSizeString, number>;
-export type Enum = Meta<MetaType.Enum, string[]>;
+// optional (T | undefined | null), but when serialized & deserialized,
+// it's always null if there's no data
+export type Optional = Meta<MetaTag.Optional, Schema>;
 
-export type Schema = Primitive | Meta<MetaType, any>;
+// fixed size string, which checks the encoded length (utf-8)
+export type FixedSizeString = Meta<MetaTag.FixedSizeString, number>;
+
+// enum
+export type Enum = Meta<MetaTag.Enum, string[]>;
+
+// tuple
+export type Tuple = Meta<MetaTag.Tuple, Schema[]>;
+
+// the schema, use isMeta() to differ them
+export type Schema = Primitive | Meta<MetaTag, any>;

@@ -15,6 +15,10 @@ export class ChunksWriter {
     this.#offset = 0;
   }
 
+  /**
+   * Ensure allocation so that data of size `size` can fit.
+   * @param size The size of the next data to fit.
+   */
   ensureAlloc(size: number) {
     if (this.#buf.byteLength + size >= this.#size) {
       const toAlloc = Math.max(Math.floor(size / 1024), 1) * 1024;
@@ -23,33 +27,57 @@ export class ChunksWriter {
     }
   }
 
-  // just one byte
+  /**
+   * Put a `u8` (unsigned 8, of size 1 byte) to the array.
+   * @param d The data.
+   */
   putU8(d: number) {
     this.#view.setUint8(this.#offset, d);
     this.#offset += 1;
   }
 
-  // essentially `usize` on most platforms
+  /**
+   * Put a `u32` (unsigned 32, of size 4 bytes) to the array.
+   * This is `usize` on most platforms, thus serde will use this
+   * for length declaration.
+   * @param d The data.
+   */
   putU32(d: number) {
     this.#view.setUint32(this.#offset, d, true);
     this.#offset += 4;
   }
 
+  /**
+   * Put a `i32` (signed 32, of size 4 bytes) to the array.
+   * @param d The data.
+   */
   putI32(d: number) {
     this.#view.setInt32(this.#offset, d, true);
     this.#offset += 4;
   }
 
+  /**
+   * Put a `i64` (signed 64, of size 8 bytes) to the array.
+   * @param d The data. Takes a `bigint`.
+   */
   putI64(d: bigint) {
     this.#view.setBigInt64(this.#offset, d, true);
     this.#offset += 8;
   }
 
+  /**
+   * Put a `f32` (float 32, of size 4 bytes) to the array.
+   * @param d The data.
+   */
   putF32(d: number) {
     this.#view.setFloat32(this.#offset, d, true);
     this.#offset += 4;
   }
 
+  /**
+   * Put a `f32` (float 32, of size 4 bytes) to the array.
+   * @param d The data.
+   */
   putF64(d: number) {
     this.#view.setFloat64(this.#offset, d, true);
     this.#offset += 8;
@@ -57,7 +85,6 @@ export class ChunksWriter {
 
   /**
    * Place a string with a known length into the chunk.
-   *
    * @param s The string.
    */
   placeFixedString(s: string) {
@@ -72,7 +99,6 @@ export class ChunksWriter {
   /**
    * Place a string inside the chunk. The size is unknown.
    * That is, the size information (of size 4B) will be added.
-   *
    * @param s The string.
    */
   placeString(s: string) {

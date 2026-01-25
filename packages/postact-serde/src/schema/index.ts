@@ -8,7 +8,7 @@ export {
   type FixedSizeString,
   type Enum,
   Primitive,
-  MetaType,
+  MetaTag,
   isMeta,
 } from "./structure";
 export { validatePrimitive, validatePrimitiveOrThrow } from "./validate";

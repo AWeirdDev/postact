@@ -1,5 +1,5 @@
 # @postact/core
-Simple, fast, zero-dependency web dev.
+Simple, fast, lightweight web dev.
 
 [GitHub](https://github.com/AWeirdDev/postact)
 

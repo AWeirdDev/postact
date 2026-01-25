@@ -1,7 +1,7 @@
 import { ChunksWriter } from "./chunks";
 import {
   isMeta,
-  MetaType,
+  MetaTag,
   Primitive,
   validatePrimitiveOrThrow,
   type Complex,
@@ -15,18 +15,18 @@ import {
 export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
   if (isMeta(schema)) {
     switch (schema.t) {
-      case MetaType.Complex:
+      case MetaTag.Complex:
         for (const [k, s] of (schema as Complex).d) {
           serializeInto(chunks, s.s, data[k]);
         }
         break;
-      case MetaType.Enum:
+      case MetaTag.Enum:
         validatePrimitiveOrThrow(Primitive.String, data);
         if (!(schema as Enum).d.includes(data))
           throw new TypeError(`key "${data}" does not exist for enum ${JSON.stringify(schema.d)}`);
         chunks.placeString(data as string);
         break;
-      case MetaType.FixedSizeString:
+      case MetaTag.FixedSizeString:
         validatePrimitiveOrThrow(Primitive.String, data);
         const encoder = new TextEncoder();
         const inputLength = encoder.encode(data as string).length;
@@ -36,7 +36,7 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
           );
         chunks.placeFixedString(data as string);
         break;
-      case MetaType.Optional:
+      case MetaTag.Optional:
         if (typeof data !== "undefined" && data !== null) {
           chunks.putU8(1);
           // validations will be done later. if there are errors, it gets stopped
@@ -45,7 +45,7 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
           chunks.putU8(0);
         }
         break;
-      case MetaType.Vector:
+      case MetaTag.Vector:
         if (!Array.isArray(data))
           throw new TypeError(`expected an array, got type ${typeof data}, contents:\n${data}`);
         chunks.putU32(data.length);

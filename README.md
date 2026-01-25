@@ -1,7 +1,7 @@
 # Postact
 [🚧 **Docs**](https://aweirddev.github.io/postact) · [**GitHub**](https://github.com/AWeirdDev/postact)
 
-Postact is a zero-dependency, semi-opinionated yet minimalist library (and a potential framework) for building robust web apps. It mainly consists of a few things:
+Postact is a lightweight, semi-opinionated yet minimalist library (and a potential framework) for building robust web apps. It mainly consists of a few things:
 
 - **HTML creation** — with `html`
 - **States (subscribables)** — with `state`, `dependent`, `later`.

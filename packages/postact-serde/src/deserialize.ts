@@ -1,7 +1,7 @@
 import { ChunksReader } from "./chunks";
 import {
   isMeta,
-  MetaType,
+  MetaTag,
   Primitive,
   type Complex,
   type Enum,
@@ -12,32 +12,37 @@ import {
 } from "./schema";
 import type { SchemaOfType } from "./schema/typing";
 
+// this function is **recursive!**
+// since the `schema` is defined by the developer, we do not need to
+// do much on refraining the program from exceeding max recursion,
+// as developers are smart.
+
 export function deserializeFrom(chunks: ChunksReader, schema: Schema): any {
   if (isMeta(schema)) {
     switch (schema.t) {
-      case MetaType.Complex:
-        // safety: schema is defined by the user
+      case MetaTag.Complex:
+        // safety: schema is defined by the dev
         const complex: Record<string, any> = {};
         for (const [k, s] of (schema as Complex).d) {
           complex[k] = deserializeFrom(chunks, s.s);
         }
         return complex;
 
-      case MetaType.Enum:
+      case MetaTag.Enum:
         const estr = chunks.getString();
         if (!(schema as Enum).d.includes(estr))
           throw new TypeError(`expected enum value, one of: ${schema.d.join(", ")}`);
         return estr;
 
-      case MetaType.FixedSizeString:
+      case MetaTag.FixedSizeString:
         return chunks.getFixedString((schema as FixedSizeString).d);
 
-      case MetaType.Optional:
+      case MetaTag.Optional:
         const hasData = chunks.readU8();
         if (!hasData) return null;
         return deserializeFrom(chunks, (schema as Optional).d);
 
-      case MetaType.Vector:
+      case MetaTag.Vector:
         const arr = [];
         const length = chunks.readU32();
         for (let i = 0; i < length; i++) {
@@ -61,6 +66,26 @@ export function deserializeFrom(chunks: ChunksReader, schema: Schema): any {
   }
 }
 
+/**
+ * Deserialize an encoded buffer created with `serialize()`.
+ * @param schema The schema definition.
+ * @param buf The buffer.
+ *
+ * @example
+ * ```ts
+ * const Coffee = t.object({
+ *   name: t.field(t.string()).order(0),
+ *   rating: t.field(t.int()).order(1),
+ * });
+ * type Coffee = t.infer<typeof Coffee>;
+ *
+ * const espresso = { name: "Espresso", rating: 10 } satisfies Coffee;
+ * const bytes = serialize(Coffee, espresso);
+ *
+ * console.log(deserialize(bytes));
+ * // Output: { name: "Espresso", rating: 10 }
+ * ```
+ */
 export function deserialize<T>(schema: SchemaOfType<T>, buf: ArrayBuffer): T {
   const chunks = new ChunksReader(buf);
   return deserializeFrom(chunks, schema);
