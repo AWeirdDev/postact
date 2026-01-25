@@ -11,6 +11,7 @@ import {
   type Schema,
   type Vector,
 } from "./schema";
+import type { Tuple } from "./schema/structure";
 
 export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
   if (isMeta(schema)) {
@@ -20,12 +21,14 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
           serializeInto(chunks, s.s, data[k]);
         }
         break;
+
       case MetaTag.Enum:
         validatePrimitiveOrThrow(Primitive.String, data);
         if (!(schema as Enum).d.includes(data))
           throw new TypeError(`key "${data}" does not exist for enum ${JSON.stringify(schema.d)}`);
         chunks.placeString(data as string);
         break;
+
       case MetaTag.FixedSizeString:
         validatePrimitiveOrThrow(Primitive.String, data);
         const encoder = new TextEncoder();
@@ -36,6 +39,7 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
           );
         chunks.placeFixedString(data as string);
         break;
+
       case MetaTag.Optional:
         if (typeof data !== "undefined" && data !== null) {
           chunks.putU8(1);
@@ -45,12 +49,23 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
           chunks.putU8(0);
         }
         break;
+
       case MetaTag.Vector:
         if (!Array.isArray(data))
-          throw new TypeError(`expected an array, got type ${typeof data}, contents:\n${data}`);
+          throw new TypeError(`expected an array, got type ${typeof data}, contents: ${data}`);
         chunks.putU32(data.length);
         (data as any[]).forEach((item) => {
           serializeInto(chunks, (schema as Vector).d, item);
+        });
+        break;
+
+      case MetaTag.Tuple:
+        if (!Array.isArray(data))
+          throw new TypeError(
+            `expected an array (tuple), got type ${typeof data}, contents: ${data}`,
+          );
+        (data as any[]).forEach((item, idx) => {
+          serializeInto(chunks, (schema as Tuple).d[idx]!, item);
         });
         break;
     }

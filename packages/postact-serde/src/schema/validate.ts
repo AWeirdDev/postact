@@ -17,8 +17,7 @@ export function validatePrimitive(expected: Primitive, data: any): boolean {
     case Primitive.Boolean:
       return typeof data === "boolean";
     case Primitive.Float64:
-      // Number.isInteger(): baseline widely available since Sep 2015
-      return typeof data === "number" && !Number.isInteger(data);
+      return typeof data === "number";
     case Primitive.Int32:
       return typeof data === "number" && Number.isInteger(data);
     case Primitive.String:

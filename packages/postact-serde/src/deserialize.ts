@@ -10,6 +10,7 @@ import {
   type Schema,
   type Vector,
 } from "./schema";
+import type { Tuple } from "./schema/structure";
 import type { SchemaOfType } from "./schema/typing";
 
 // this function is **recursive!**
@@ -44,11 +45,19 @@ export function deserializeFrom(chunks: ChunksReader, schema: Schema): any {
 
       case MetaTag.Vector:
         const arr = [];
-        const length = chunks.readU32();
-        for (let i = 0; i < length; i++) {
+        const arrLength = chunks.readU32();
+        for (let i = 0; i < arrLength; i++) {
           arr.push(deserializeFrom(chunks, (schema as Vector).d));
         }
         return arr;
+
+      case MetaTag.Tuple:
+        const tpl = [];
+        const tplLength = (schema as Tuple).d.length;
+        for (let i = 0; i < tplLength; i++) {
+          tpl.push(deserializeFrom(chunks, (schema as Tuple).d[i]!));
+        }
+        return tpl;
     }
   } else {
     switch (schema) {
