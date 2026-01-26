@@ -14,7 +14,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
 
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
 
     "strict": true,
