@@ -9,6 +9,7 @@ Postact is a lightweight, semi-opinionated yet minimalist library (and a potenti
 - `@postact/jsx` – Postact JSX support for creating even more robust apps.
 - `@postact/client-router` – Simple client router, providing `route()` and `<Route />`.
 - `@postact/serde` – Strict serialization/deserialization and typing to align with Postact and other workflows.
+- `@postact/ssr` – Server-side rendering.
 
 ## Future plans
 In the future. Maybe. Okay yeah I will.
