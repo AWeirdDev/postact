@@ -7,7 +7,14 @@ import {
   type VirtualItem,
   type VirtualTextNode,
 } from "@postact/core";
-import { ChunksReader, ChunksWriter, deserializeFrom, serializeInto, t } from "@postact/serde";
+import {
+  ChunksReader,
+  ChunksWriter,
+  deserializeFrom,
+  serializeInto,
+  t,
+  type Schema,
+} from "@postact/serde";
 
 export namespace Transmitable {
   export enum EventType {
@@ -16,10 +23,16 @@ export namespace Transmitable {
     Action = 2, // for server actions
   }
 
-  export const CodeEvent = t.object({
-    content: t.field(t.string()).order(0),
+  export const CodePayload = t.object({
+    ident: t.field(t.string()).order(0),
+    content: t.field(t.string()).order(1),
   });
-  export type CodeEvent = t.infer<typeof CodeEvent>;
+  export type CodePayload = t.infer<typeof CodePayload>;
+
+  export interface ActionPayload {
+    ident: string;
+    data: any;
+  }
 
   export enum VdomType {
     Element = 0,
@@ -91,8 +104,13 @@ export class TransmitWriter {
     }
   }
 
-  placeCode(content: string) {
-    serializeInto(this.#writer, Transmitable.CodeEvent, { content } satisfies Transmitable.CodeEvent);
+  placeCode(payload: Transmitable.CodePayload) {
+    serializeInto(this.#writer, Transmitable.CodePayload, payload);
+  }
+
+  placeAction(ident: string, paramsSchema: Schema, params: any) {
+    this.#writer.placeString(ident);
+    serializeInto(this.#writer, paramsSchema, params);
   }
 
   finish(): ArrayBuffer {
@@ -175,5 +193,14 @@ export class TransmitReader {
       case Transmitable.VdomType.TextNode:
         return this.getVtn();
     }
+  }
+
+  getCode(): Transmitable.CodePayload {
+    return deserializeFrom(this.#reader, Transmitable.CodePayload);
+  }
+
+  getAction(paramsSchema: Schema): Transmitable.ActionPayload {
+    const ident = this.#reader.getString();
+    return { ident, data: deserializeFrom(this.#reader, paramsSchema) };
   }
 }
