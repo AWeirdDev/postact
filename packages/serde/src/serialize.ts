@@ -84,6 +84,9 @@ export function serializeInto(chunks: ChunksWriter, schema: Schema, data: any) {
       case Primitive.Int32:
         chunks.putI32(data);
         break;
+      case Primitive.Uint8:
+        chunks.putU8(data);
+        break;
       case Primitive.String:
         chunks.placeString(data);
         break;

@@ -69,6 +69,8 @@ export function deserializeFrom(chunks: ChunksReader, schema: Schema): any {
         return chunks.readF64();
       case Primitive.Int32:
         return chunks.readI32();
+      case Primitive.Uint8:
+        return chunks.readU8();
       case Primitive.String:
         return chunks.getString();
     }

@@ -1,0 +1,22 @@
+{
+  "name": "@postact/ssr",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "fmt": "oxfmt src",
+    "build": "tsc --build --clean && tsc --build && rolldown -m -c"
+  },
+  "dependencies": {
+    "@postact/serde": "workspace:*",
+    "@postact/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.27.0",
+    "rolldown": "^1.0.0-rc.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "files": ["./src/**/*", "./dist/**/*"]
+}

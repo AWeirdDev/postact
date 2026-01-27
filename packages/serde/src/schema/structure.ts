@@ -4,6 +4,7 @@ export enum Primitive {
   Float64 = 2,
   Boolean = 3,
   BigInt64 = 4,
+  Uint8 = 5,
 }
 
 export type Meta<T extends MetaTag, D> = Readonly<{ t: T; d: D }>;

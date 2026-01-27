@@ -22,6 +22,13 @@ function int_(): SchemaOfType<number> {
 }
 
 /**
+ * Represents a u8 type.
+ */
+function uint8(): SchemaOfType<number> {
+  return Primitive.Uint8 satisfies Schema as any;
+}
+
+/**
  * Represents the float (`float64`) type.
  */
 function float_(): SchemaOfType<number> {
@@ -201,6 +208,7 @@ export {
   array,
   optional,
   tuple,
+  uint8,
   object_ as "object",
   int_ as "int",
   float_ as "float",
