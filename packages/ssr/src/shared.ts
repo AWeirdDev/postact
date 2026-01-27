@@ -1,18 +1,26 @@
-import type { VirtualElement } from "@postact/core";
+import {
+  isVe,
+  isVtn,
+  PostactIdentifier,
+  type VirtualElement,
+  type VirtualFragment,
+  type VirtualItem,
+  type VirtualTextNode,
+} from "@postact/core";
 import { ChunksReader, ChunksWriter, deserializeFrom, serializeInto, t } from "@postact/serde";
 
-export enum EventType {
-  Code = 0, // runnable code on client-side
-  Vdom = 1, // static virtual dom
-  Action = 2, // for server actions
-}
-
-export const CodeEvent = t.object({
-  content: t.field(t.string()).order(0),
-});
-export type CodeEvent = t.infer<typeof CodeEvent>;
-
 export namespace Transmitable {
+  export enum EventType {
+    Code = 0, // runnable code on client-side
+    Vdom = 1, // static virtual dom
+    Action = 2, // for server actions
+  }
+
+  export const CodeEvent = t.object({
+    content: t.field(t.string()).order(0),
+  });
+  export type CodeEvent = t.infer<typeof CodeEvent>;
+
   export enum VdomType {
     Element = 0,
     Fragment = 1,
@@ -34,14 +42,14 @@ export namespace Transmitable {
 export class TransmitWriter {
   #writer: ChunksWriter;
 
-  constructor(eventType: EventType) {
+  constructor(eventType: Transmitable.EventType) {
     this.#writer = new ChunksWriter();
 
     // we'll set the event type as the header
     this.#writer.putU8(eventType);
   }
 
-  placeVe({ tag, attributes }: VirtualElement) {
+  placeVe({ tag, attributes, children }: VirtualElement) {
     // first the header
     this.#writer.putU8(Transmitable.VdomType.Element);
     serializeInto(this.#writer, Transmitable.VirtualElement, {
@@ -49,9 +57,42 @@ export class TransmitWriter {
       attributes: attributes
         .entries()
         .filter(([_, value]) => typeof value !== "undefined" && value !== null)
-        .map(([key, value]) => [key, value!.toString()])
+        .map<[string, string]>(([key, value]) => [key, value!.toString()])
         .toArray(),
-    });
+    } satisfies Transmitable.VirtualElement);
+
+    const length = children.length;
+    this.#writer.putU32(length);
+    children.forEach((vi) => this.placeVirtualItem(vi));
+  }
+
+  placeVtn({ data }: VirtualTextNode) {
+    this.#writer.putU8(Transmitable.VdomType.TextNode);
+    serializeInto(this.#writer, Transmitable.VirtualTextNode, {
+      data,
+    } satisfies Transmitable.VirtualTextNode);
+  }
+
+  placeVf({ children }: VirtualFragment) {
+    if (!children.length) return;
+    this.#writer.putU8(Transmitable.VdomType.Fragment);
+    this.#writer.putU32(children.length);
+    children.forEach((vi) => this.placeVirtualItem(vi));
+  }
+
+  placeVirtualItem(vi: VirtualItem) {
+    if (typeof vi === "undefined" || vi === null) return;
+    if (isVe(vi)) {
+      this.placeVe(vi);
+    } else if (isVtn(vi)) {
+      this.placeVtn(vi);
+    } else {
+      this.placeVf(vi);
+    }
+  }
+
+  placeCode(content: string) {
+    serializeInto(this.#writer, Transmitable.CodeEvent, { content } satisfies Transmitable.CodeEvent);
   }
 
   finish(): ArrayBuffer {
@@ -66,9 +107,9 @@ export class TransmitReader {
     this.#reader = new ChunksReader(buf);
   }
 
-  getEventType(): EventType {
+  getEventType(): Transmitable.EventType {
     const repr = this.#reader.readU8();
-    if (!Object.values(EventType).includes(repr))
+    if (!Object.values(Transmitable.EventType).includes(repr))
       throw new TypeError("unknown event type, not one of EventType");
     return repr;
   }
@@ -80,7 +121,59 @@ export class TransmitReader {
     return repr;
   }
 
-  getVe(): Transmitable.VirtualElement {
-    return deserializeFrom(this.#reader, Transmitable.VirtualElement);
+  getVe(): VirtualElement {
+    const ve: Transmitable.VirtualElement = deserializeFrom(
+      this.#reader,
+      Transmitable.VirtualElement,
+    );
+    const length = this.#reader.readU32();
+    const children: VirtualItem[] = [];
+    for (let i = 0; i < length; i++) {
+      children.push(this.getVirtualItem());
+    }
+
+    return {
+      __p: PostactIdentifier.VirtualElement,
+      tag: ve.tag,
+      attributes: new Map(ve.attributes),
+      listeners: [],
+      children,
+    };
+  }
+
+  getVtn(): VirtualTextNode {
+    const vtn: Transmitable.VirtualTextNode = deserializeFrom(
+      this.#reader,
+      Transmitable.VirtualTextNode,
+    );
+    return {
+      __p: PostactIdentifier.VirtualTextNode,
+      data: vtn.data,
+    };
+  }
+
+  getVf(): VirtualFragment {
+    const length = this.#reader.readU32();
+    const children: VirtualItem[] = [];
+    for (let i = 0; i < length; i++) {
+      children.push(this.getVirtualItem());
+    }
+
+    return {
+      __p: PostactIdentifier.VirtualFragment,
+      children: children,
+    };
+  }
+
+  getVirtualItem(): VirtualItem {
+    const vdomType = this.getVdomType();
+    switch (vdomType) {
+      case Transmitable.VdomType.Element:
+        return this.getVe();
+      case Transmitable.VdomType.Fragment:
+        return this.getVf();
+      case Transmitable.VdomType.TextNode:
+        return this.getVtn();
+    }
   }
 }
