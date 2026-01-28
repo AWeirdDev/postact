@@ -1,6 +1,7 @@
 {
   "name": "@postact/client-router",
-  "version": "0.0.3",
+  "description": "Experimental client router for Postact.",
+  "version": "0.0.4",
   "author": {
     "email": "awdjared@gmail.com",
     "name": "AWeirdDev",

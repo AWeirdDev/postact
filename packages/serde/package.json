@@ -1,5 +1,6 @@
 {
   "name": "@postact/serde",
+  "description": "Serialization/deserialization and typing system crafted to align with Postact and other workflows.",
   "version": "0.0.1",
   "author": {
     "email": "awdjared@gmail.com",

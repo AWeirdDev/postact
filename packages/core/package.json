@@ -1,6 +1,7 @@
 {
   "name": "@postact/core",
-  "version": "0.0.12",
+  "description": "Simple, fast, lightweight web dev.",
+  "version": "0.0.13",
   "keywords": [
     "virtual dom",
     "jsx",

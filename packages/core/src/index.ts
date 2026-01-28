@@ -16,7 +16,7 @@ export { store } from "./subscribables/store";
 
 // display-related
 export { html, filterListenersFromAttributes } from "./html";
-export { css } from "./css";
+export { getCssKeyName, type StyleDeclaration, type StyleDeclarationFull } from "./css";
 export { text } from "./text";
 export { transformArgToVirtualItem } from "./argument";
 

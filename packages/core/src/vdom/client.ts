@@ -10,8 +10,13 @@ import {
 import { ensureWindow, isPrimitive } from "../utilities";
 
 import { simpleRandString } from "../_internals";
-import { isSubscribable } from "../subscribables/base";
+import { isSubscribable, type Subscribable } from "../subscribables/base";
 import { isRef } from "../subscribables/ref";
+import { getCssKeyName, type StyleDeclaration } from "../css";
+
+const ATTRIBUTE_RENAMES: Record<string, string> = {
+  className: "class",
+};
 
 function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   const fragment = window.document.createDocumentFragment();
@@ -59,21 +64,31 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     // element (VirtualElement)
     const element = window.document.createElement(vi.tag);
 
-    // attributes
+    // attributes (can be subscribables)
     vi.attributes.entries().forEach(([name, value]) => {
       if (typeof value === "undefined" || value === null) return;
 
+      // for $refs
       if (isRef(value)) {
         value.value = element;
-        // @ts-ignore
         value.emit();
       }
 
+      // for regular subscribable attributes
       if (isSubscribable(value)) {
         value.subscribe((newValue) => {
-          resolveAttribute(element, name, newValue);
+          resolveAttributeForChangable(element, name, newValue);
         });
-        return resolveAttribute(element, name, value.value);
+        return resolveAttributeForChangable(element, name, value.value);
+      }
+
+      if (Array.isArray(value)) {
+        return element.setAttribute(name, value.join(" "));
+      }
+
+      // for styles declared with objects { ... }
+      if (typeof value === "object") {
+        return applyCssDeclaration(element, value);
       }
 
       element.setAttribute(name, value.toString());
@@ -126,7 +141,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     }
     return fragment;
   } else {
-    throw new Error("unknown virtual item");
+    throw new Error(`unknown virtual item, contents: ${JSON.stringify(vi)}`);
   }
 }
 
@@ -170,11 +185,40 @@ class FragmentSpread {
   }
 }
 
-function resolveAttribute(element: HTMLElement, name: string, value: AttributeValue) {
+/**
+ * Resolves the attribute name & value. If the given value is null, removes the
+ * attribute (if exists); if the given value is non-null, sets the attribute.
+ *
+ * @param element The HTML element to add attributes to.
+ * @param name The name of the attribute.
+ * @param value The value of the attribute.
+ */
+function resolveAttributeForChangable(element: HTMLElement, name: string, value: AttributeValue) {
+  const keyName = Object.keys(ATTRIBUTE_RENAMES).includes(name) ? ATTRIBUTE_RENAMES[name]! : name;
+
   // According to mdn, if the specified attribute does not exist,
   // `removeAttribute()` returns without generating an error.
-  if (typeof value === "undefined" || value === null) element.removeAttribute(name);
-  else element.setAttribute(name, value.toString());
+  if (typeof value === "undefined" || value === null) element.removeAttribute(keyName);
+  else element.setAttribute(keyName, value.toString());
+}
+
+function resolveAddCssKey(element: HTMLElement, key: string, content: any) {
+  if (typeof content === "undefined" || content === null) return;
+  element.style[key as any] = content.toString();
+}
+
+function applyCssDeclaration(element: HTMLElement, styleDecl: StyleDeclaration) {
+  Object.entries(styleDecl).forEach(([key, content]) => {
+    if (isSubscribable(content)) {
+      resolveAddCssKey(element, key, content.value);
+
+      // then, we subscribe!
+      content.subscribe((newData) => resolveAddCssKey(element, key, newData));
+      return;
+    } else {
+      resolveAddCssKey(element, key, content);
+    }
+  });
 }
 
 export interface ToFragOptions {

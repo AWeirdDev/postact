@@ -1,5 +1,6 @@
 {
   "name": "@postact/ssr",
+  "version": "0.0.1-rc",
   "module": "index.ts",
   "type": "module",
   "scripts": {

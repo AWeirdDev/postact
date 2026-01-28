@@ -19,7 +19,12 @@ export class SerdeClient {
     this.#url = url;
   }
 
-  async callAction<T, R>({ ident, paramsSchema, params, returnSchema }: CallActionParams<T, R>): Promise<R> {
+  async callAction<T, R>({
+    ident,
+    paramsSchema,
+    params,
+    returnSchema,
+  }: CallActionParams<T, R>): Promise<R> {
     const writer = new TransmitWriter(Transmitable.EventType.Action);
     writer.placeAction(ident, paramsSchema, params);
 

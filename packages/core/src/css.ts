@@ -1,12 +1,10 @@
-import { isPostactIdent, PostactIdentifier } from "./_internals";
-import { isSubscribable, type Subscribable } from "./subscribables/base";
-import { anyToString, text, textWithOptions } from "./text";
+import { type Subscribable } from "./subscribables/base";
 
 /**
  * Gets the CSS property name.
  * @param key The original key name given by the user.
  */
-function getName(key: string): string {
+export function getCssKeyName(key: string): string {
   let text = "";
   let idx = 0;
 
@@ -30,21 +28,7 @@ function getName(key: string): string {
   }
 }
 
-type _AnyCSSValue = string | number;
-type StyleDeclaration = {
+export type StyleDeclarationFull = {
   [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] | Subscribable<CSSStyleDeclaration[K]>;
 };
-
-export function css(
-  arg0: Partial<StyleDeclaration> | TemplateStringsArray,
-  ...args: (_AnyCSSValue | Subscribable<_AnyCSSValue>)[]
-): string | Subscribable<string> {
-  throw new Error(
-    "CSS is not supported yet, but it will be in future versions. " +
-      "In the meantime, you could use text`...` instead, there's just no highlighting.",
-  );
-}
-
-export function isCSSPaper(item: any): item is PostactIdentifier.CSSPaper {
-  return isPostactIdent(PostactIdentifier.CSSPaper, item);
-}
+export type StyleDeclaration = Partial<StyleDeclarationFull>;

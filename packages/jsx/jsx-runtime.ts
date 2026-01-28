@@ -10,6 +10,7 @@ import {
   type Component,
   type ComponentInstance,
   isComponentPtr,
+  type StyleDeclaration,
 } from "@postact/core";
 
 export declare namespace JSX {
@@ -162,14 +163,32 @@ export declare namespace JSX {
 
   type ElementProps<T extends HTMLElement> = Partial<
     Omit<Pick<T, ExtractProps<T>>, ExcludedHTMLProps>
-  > & {
-    [`class`]?: string;
-  };
+  >;
 
   type HTMLAttributes<T extends HTMLElement> = {
     [K in keyof ElementProps<T> as CamelToKebab<K & string>]: ElementProps<T>[K];
   } & EventHandlers<T> &
-    IntrinsicElementsProps & { ref?: Ref<T> };
+    IntrinsicElementsProps & {
+      /**
+       * Reference to the rendered component.
+       */
+      ref?: Ref<T>;
+
+      /**
+       * HTML Classes.
+       */
+      [`class`]?: string | string[] | null;
+
+      /**
+       * HTML Classes (fallback for React users).
+       */
+      className?: string | string[] | null;
+
+      /**
+       * HTML style.
+       */
+      style?: string | Subscribable<string> | StyleDeclaration | null;
+    };
 
   type IntrinsicElementsBase = {
     [K in keyof HTMLElementTagNameMap]: HTMLAttributes<HTMLElementTagNameMap[K]>;

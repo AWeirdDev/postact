@@ -1,10 +1,17 @@
 import { isPostactIdent, PostactIdentifier } from "../_internals";
+import { type StyleDeclaration } from "../css";
 
 import type { Ref } from "../subscribables/ref";
 import type { Subscribable } from "../subscribables/base";
 
 type _Any = number | string | boolean | null | undefined;
-export type AttributeValue = _Any | string | Subscribable<_Any> | Ref<any>;
+export type AttributeValue =
+  | _Any
+  | string
+  | StyleDeclaration
+  | Subscribable<_Any>
+  | Ref<any>
+  | string[];
 export type Attributes = Map<string, AttributeValue>;
 
 export interface VirtualElement {
