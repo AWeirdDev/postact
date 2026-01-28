@@ -1,7 +1,6 @@
 {
   "name": "@postact/serde",
-  "description": "Serialization/deserialization and typing system crafted to align with Postact and other workflows.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "email": "awdjared@gmail.com",
     "name": "AWeirdDev",
@@ -10,9 +9,15 @@
   "repository": {
     "url": "https://github.com/AWeirdDev/postact"
   },
-
-  "type": "module",
   "main": "./dist/index.cjs",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.27.0",
+    "rolldown": "^1.0.0-beta.59"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
   "exports": {
     ".": {
       "import": {
@@ -26,16 +31,9 @@
       }
     }
   },
+  "description": "Serialization/deserialization and typing system crafted to align with Postact and other workflows.",
   "engines": {
     "node": ">=20.0.0"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/bun": "latest",
-    "rolldown": "^1.0.0-beta.59"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   },
   "files": [
     "src/**/*",
@@ -43,7 +41,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsc --build --clean && tsc --build && rolldown -m -c"
+    "build": "tsc --build --clean && tsc --build && rolldown -m -c",
+    "fmt": "oxfmt src/*"
   },
-  "trustedDependencies": []
+  "trustedDependencies": [],
+  "type": "module"
 }

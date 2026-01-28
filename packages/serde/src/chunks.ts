@@ -4,12 +4,10 @@ export class ChunksWriter {
   readonly #arr: Uint8Array;
   readonly #view: DataView;
 
-  #size: number;
   #offset: number;
 
   constructor() {
-    this.#size = 1024;
-    this.#buf = new ArrayBuffer(512, { maxByteLength: 4096 });
+    this.#buf = new ArrayBuffer(512, { maxByteLength: 104_857_600 });
     this.#arr = new Uint8Array(this.#buf);
     this.#view = new DataView(this.#buf);
     this.#offset = 0;
@@ -20,10 +18,10 @@ export class ChunksWriter {
    * @param size The size of the next data to fit.
    */
   ensureAlloc(size: number) {
-    if (this.#buf.byteLength + size >= this.#size) {
-      const toAlloc = Math.max(Math.floor(size / 1024), 1) * 1024;
-      console.log("allocating", toAlloc, "bytes");
-      this.#buf.resize((this.#size += toAlloc));
+    const needed = this.#offset + size;
+    if (needed > this.#arr.length) {
+      const toAlloc = Math.ceil((needed - this.#arr.length) / 512) * 512;
+      this.#buf.resize(this.#arr.length + toAlloc);
     }
   }
 
@@ -32,6 +30,7 @@ export class ChunksWriter {
    * @param d The data.
    */
   putU8(d: number) {
+    this.ensureAlloc(1);
     this.#view.setUint8(this.#offset, d);
     this.#offset += 1;
   }
@@ -43,6 +42,7 @@ export class ChunksWriter {
    * @param d The data.
    */
   putU32(d: number) {
+    this.ensureAlloc(4);
     this.#view.setUint32(this.#offset, d, true);
     this.#offset += 4;
   }
@@ -52,6 +52,7 @@ export class ChunksWriter {
    * @param d The data.
    */
   putI32(d: number) {
+    this.ensureAlloc(4);
     this.#view.setInt32(this.#offset, d, true);
     this.#offset += 4;
   }
@@ -61,6 +62,7 @@ export class ChunksWriter {
    * @param d The data. Takes a `bigint`.
    */
   putI64(d: bigint) {
+    this.ensureAlloc(8);
     this.#view.setBigInt64(this.#offset, d, true);
     this.#offset += 8;
   }
@@ -70,15 +72,17 @@ export class ChunksWriter {
    * @param d The data.
    */
   putF32(d: number) {
+    this.ensureAlloc(4);
     this.#view.setFloat32(this.#offset, d, true);
     this.#offset += 4;
   }
 
   /**
-   * Put a `f32` (float 32, of size 4 bytes) to the array.
+   * Put a `f64` (float 64, of size 8 bytes) to the array.
    * @param d The data.
    */
   putF64(d: number) {
+    this.ensureAlloc(8);
     this.#view.setFloat64(this.#offset, d, true);
     this.#offset += 8;
   }
@@ -90,10 +94,12 @@ export class ChunksWriter {
   placeFixedString(s: string) {
     // baseline: widely available
     const encoder = new TextEncoder();
-    const result = encoder.encodeInto(s, this.#arr.subarray(this.#offset));
+    const result = encoder.encode(s);
 
-    // The number of bytes modified in the destination Uint8Array. (mdn)
-    this.#offset += result.written;
+    this.ensureAlloc(result.length);
+    this.#arr.set(result, this.#offset);
+
+    this.#offset += result.length;
   }
 
   /**
@@ -102,8 +108,16 @@ export class ChunksWriter {
    * @param s The string.
    */
   placeString(s: string) {
-    this.putU32(s.length);
-    this.placeFixedString(s);
+    // baseline: widely available
+    const encoder = new TextEncoder();
+    const result = encoder.encode(s);
+
+    this.ensureAlloc(result.length + 4);
+
+    this.putU32(result.length);
+    this.#arr.set(result, this.#offset);
+
+    this.#offset += result.length;
   }
 
   /**
