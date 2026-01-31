@@ -1,5 +1,4 @@
 import {
-  createVf,
   createVtn,
   type Attributes,
   type AttributeValue,
@@ -15,12 +14,6 @@ import {
   transformArgToVirtualItem,
   type Argument,
 } from "./argument";
-import {
-  isComponentInstance,
-  isComponentPtr,
-  type Component,
-  type ComponentInstance,
-} from "./component";
 
 class ParseError extends Error {
   constructor(reason: string) {
@@ -71,16 +64,6 @@ class ParseError extends Error {
 
   static noBackslashBeforeInsert(): ParseError {
     return new ParseError("there should be no backslash (\\) before ${...}");
-  }
-
-  static typeCheckComponentProps(): ParseError {
-    return new ParseError(
-      "**do not** add attributes like how you would in JSX." +
-        "this may lead to runtime type inconsistencies. " +
-        "instead, run components (e.g., `Page`) with attributes like this: \n" +
-        "  html`<${Page({ hello: 'world' })} />`\n" +
-        "this ensures runtime type safety.",
-    );
   }
 }
 
@@ -146,13 +129,7 @@ class HTMLParser {
 
       if (chr == "<") {
         if (shouldInsert) {
-          const insertion = this.getInsertion();
-          if (isComponentPtr(insertion) || isComponentInstance(insertion)) {
-            children.push(this.processComponent(insertion));
-            continue;
-          } else {
-            throw ParseError.noInsertInTagNames();
-          }
+          throw ParseError.noInsertInTagNames();
         }
         children.push(this.processElement());
       } else if (shouldInsert) {
@@ -189,8 +166,7 @@ class HTMLParser {
     const children = this.consumeChildren(afterTagShouldInsert);
     const endTag = this.consumeEndTag();
 
-    if (startTag !== endTag)
-      throw ParseError.tagMismatch(startTag, typeof endTag === "string" ? endTag : "[component]");
+    if (startTag !== endTag) throw ParseError.tagMismatch(startTag, endTag);
 
     return {
       __p: PostactIdentifier.VirtualElement,
@@ -199,36 +175,6 @@ class HTMLParser {
       children,
       listeners,
     };
-  }
-
-  processComponent(insertion: Component<any> | ComponentInstance): VirtualItem {
-    const [attributes, selfClosing, afterTagShouldInsert] = this.consumeAttributes();
-
-    // don't do: html`<${Fruits} apples=${10} />`
-    // this is BAD (actually, horrible) for runtime!
-    // instead, use html`<${Fruits({ apples: 10 })} />`
-    //
-    // also, if you *do* have additional props for your component
-    // and you you created components using the `component()` function,
-    // typescript will warn you of this.
-    if (attributes.size > 0) throw ParseError.typeCheckComponentProps();
-
-    if (selfClosing) return insertion.ptr(isComponentPtr(insertion) ? {} : insertion.props);
-
-    const children = this.consumeChildren(afterTagShouldInsert);
-    const endTag = this.consumeEndTag();
-    if (typeof endTag !== "function") throw ParseError.tagMismatch("[component]", endTag);
-
-    if (!isComponentPtr(endTag))
-      throw new TypeError("expected component pointer for end tag, got other functions instead");
-
-    if (endTag.ptr !== insertion.ptr)
-      throw ParseError.tagMismatch("[component A]", "[component B]");
-
-    return insertion.ptr({
-      children: createVf(children),
-      ...(isComponentPtr(insertion) ? {} : insertion.props),
-    });
   }
 
   /**
@@ -330,16 +276,12 @@ class HTMLParser {
     }
   }
 
-  consumeEndTag(): string | Function {
+  consumeEndTag(): string {
     const [shouldInsertAfterTagName, chr] = this.consumeWhitespace();
     if (chr !== "/") throw ParseError.expectedTagClosing();
-    if (shouldInsertAfterTagName) {
-      const insertion = this.getInsertion();
-      if (typeof insertion === "function") return insertion;
-      throw ParseError.noInsertInTagNames();
-    }
+    if (shouldInsertAfterTagName) throw ParseError.noInsertInTagNames();
 
-    let name: string | Function = "";
+    let name: string = "";
 
     /**
      * - `0`: Still collecting.
@@ -351,20 +293,12 @@ class HTMLParser {
       const [shouldInsert, chr] = this.next()!;
 
       if (chr === ">") {
-        if (typeof name === "function") return name;
         return name.trimEnd();
       }
 
       if (shouldInsert) {
-        const insertion = this.getInsertion();
-        if (typeof insertion === "function" && typeof name !== "function") {
-          name = insertion;
-        } else {
-          throw ParseError.noInsertInTagNames();
-        }
+        throw ParseError.noInsertInTagNames();
       } else {
-        if (typeof name === "function") throw ParseError.invalidCharacterInTagName(chr);
-
         if (/\s/.test(chr)) state = 1;
 
         if (state == 0 && !/[a-zA-Z0-9-]/.test(chr))

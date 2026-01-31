@@ -7,23 +7,12 @@ import {
   type Subscribable,
   type VirtualElement,
   type VirtualItem,
-  type Component,
-  type ComponentInstance,
-  isComponentPtr,
+  type AnyChildren,
   type StyleDeclaration,
 } from "@postact/core";
 
 export declare namespace JSX {
-  type Element = VirtualItem | ComponentInstance;
-  type AnyChildren =
-    | Element
-    | string
-    | boolean
-    | number
-    | bigint
-    | null
-    | undefined
-    | Subscribable<AnyChildren>;
+  type Element = VirtualItem;
 
   interface IntrinsicElementsProps {
     /**
@@ -33,7 +22,7 @@ export declare namespace JSX {
      * The `Ref` object is a subscribable, subscribable via `.subscribe()`.
      */
     ref?: Ref<any>;
-    children?: AnyChildren | AnyChildren[];
+    children?: AnyChildren;
   }
 
   type EventHandlers<T> = {
@@ -170,7 +159,7 @@ export declare namespace JSX {
   } & EventHandlers<T> &
     IntrinsicElementsProps & {
       /**
-       * Reference to the rendered component.
+       * Reference to the rendered item.
        */
       ref?: Ref<T>;
 
@@ -205,7 +194,7 @@ function mapChildren(items: any[]) {
   return items.map((item) => transformArgToVirtualItem(item));
 }
 
-function jsx(type: Symbol | Function | string | Component<any>, props: any): JSX.Element {
+function jsx(type: Symbol | Function | string, props: any): JSX.Element {
   const hasChildren = typeof props.children !== "undefined" && props.children !== null;
   const children = !hasChildren
     ? []
@@ -232,11 +221,10 @@ function jsx(type: Symbol | Function | string | Component<any>, props: any): JSX
     } satisfies VirtualElement;
   }
 
-  if (isComponentPtr(type)) {
-    return type.ptr(props);
-  }
-
   if (typeof type === "function") {
+    if (hasChildren) {
+      props["children"] = createVf(mapChildren(children));
+    }
     return type(props);
   }
 

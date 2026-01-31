@@ -1,21 +1,9 @@
-import {
-  isComponentInstance,
-  isComponentPtr,
-  type Component,
-  type ComponentInstance,
-} from "../component";
 import { realize } from "../vdom/client";
 import type { VirtualItem } from "../vdom/structure";
 
-export type Renderable = VirtualItem | ComponentInstance<any> | Component<any>;
+export type Renderable = VirtualItem;
 
 function toNode(re: Renderable): DocumentFragment {
-  if (isComponentInstance(re)) {
-    return realize(re.ptr(re.props));
-  }
-  if (isComponentPtr(re)) {
-    return realize(re.ptr({}));
-  }
   return realize(re);
 }
 

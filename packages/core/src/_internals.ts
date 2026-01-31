@@ -1,46 +1,44 @@
-// will keep it here
-// export class Maybe<T> {
-//   #hasValue: boolean;
-//   #value: T | null;
+export class Maybe<T> {
+  #hasValue: boolean;
+  #value: T | null;
 
-//   constructor(hasValue: boolean, value: T | null = null) {
-//     this.#hasValue = hasValue;
-//     this.#value = value;
-//   }
+  constructor(hasValue: boolean, value: T | null = null) {
+    this.#hasValue = hasValue;
+    this.#value = value;
+  }
 
-//   unwrap(): T {
-//     if (!this.#hasValue)
-//       throw new Error("cannot call unwrap() on Maybe.none()");
+  unwrap(): T {
+    if (!this.#hasValue) throw new Error("cannot call unwrap() on Maybe.none()");
 
-//     return this.#value as T;
-//   }
+    return this.#value as T;
+  }
 
-//   isNone(): boolean {
-//     return !this.#hasValue;
-//   }
+  isNone(): boolean {
+    return !this.#hasValue;
+  }
 
-//   isSome(): boolean {
-//     return this.#hasValue;
-//   }
+  isSome(): boolean {
+    return this.#hasValue;
+  }
 
-//   replace(value: T) {
-//     this.#hasValue = true;
-//     this.#value = value;
-//   }
+  replace(value: T) {
+    this.#hasValue = true;
+    this.#value = value;
+  }
 
-//   replaceNone() {
-//     this.#hasValue = false;
-//     this.#value = null;
-//   }
+  replaceNone() {
+    this.#hasValue = false;
+    this.#value = null;
+  }
 
-//   static none<T>(): Maybe<T> {
-//     return new Maybe(false);
-//   }
+  static none<T>(): Maybe<T> {
+    return new Maybe(false);
+  }
 
-//   static some<T>(value: T): Maybe<T> {
-//     return new Maybe(true, value);
-//   }
-// }
+  static some<T>(value: T): Maybe<T> {
+    return new Maybe(true, value);
+  }
+}
 
 /**
  * Identifier for Postact internal objects.
@@ -54,9 +52,10 @@ export enum PostactIdentifier {
   VirtualFragment = 3,
   VirtualTextNode = 4,
   CSSPaper = 5, // RESERVED
-  ComponentPointer = 6,
-  ComponentInstance = 7,
+  ComponentPointer = 6, // RESERVED, DEPRECATED
+  ComponentInstance = 7, // RESERVED, DEPRECATED
   Ref = 8,
+  FunctionRender = 9,
 }
 
 /**

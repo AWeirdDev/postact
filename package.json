@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "bun run build.js && bun run --cwd './testing' dev",
     "docs:dev": "bun --bun vitepress dev docs",
     "docs:build": "bun --bun vitepress build docs",
     "docs:preview": "bun --bun vitepress preview docs",
@@ -13,9 +13,9 @@
     "fmt": "oxfmt '!**/dist/**/*' '!**/*.{json,md,html}' packages/"
   },
   "dependencies": {
+    "@postact/client-router": "workspace:*",
     "@postact/core": "workspace:*",
     "@postact/jsx": "workspace:*",
-    "@postact/client-router": "workspace:*",
     "@postact/serde": "workspace:*",
     "@postact/ssr": "workspace:*"
   },

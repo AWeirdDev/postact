@@ -1,4 +1,6 @@
 import {
+  createVtn,
+  isFr,
   isVe,
   isVf,
   isVtn,
@@ -9,10 +11,11 @@ import {
 
 import { ensureWindow, isPrimitive } from "../utilities";
 
-import { simpleRandString } from "../_internals";
-import { isSubscribable, type Subscribable } from "../subscribables/base";
-import { isRef } from "../subscribables/ref";
-import { getCssKeyName, type StyleDeclaration } from "../css";
+import { Maybe, simpleRandString } from "../_internals";
+import { isSubscribable } from "../subscribables/base";
+import { isRef, type Ref } from "../subscribables/ref";
+import { type StyleDeclaration } from "../css";
+import { transformArgToVirtualItem } from "../argument";
 
 const ATTRIBUTE_RENAMES: Record<string, string> = {
   className: "class",
@@ -41,16 +44,24 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
       const end = window.document.createComment(options.debug ? `/${id}` : "");
 
       const fs = new FragmentSpread(start, end, fragment); // as of now, the parent is the container
+      const children = Maybe.none<VirtualItem>();
 
       vtn.subscribable.subscribe((value) => {
         if (tn.parentNode) {
           // if the text node has been added to the DOM, parentNode would be present
           fs.setParent(tn.parentNode);
         }
-        const newFrag = resolveSubscribableValueToFrag(value, options);
+        // kill existing ones
+        if (children.isSome()) {
+          kill(children.unwrap());
+        }
+
+        const newVi = resolveSubscribableValue(value);
+        children.replace(newVi);
+
+        const newFrag = _toFrag(newVi, options);
         fs.spreadAndReplace(newFrag);
       });
-
       fragment.append(start, tn, end);
     } else {
       // no subscribables
@@ -100,7 +111,13 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     // subscribables
     if (vi.subscribable)
       vi.subscribable.subscribe((value) => {
-        const newFrag = resolveSubscribableValueToFrag(value, options);
+        // make them all die! (free memory)
+        vi.children.forEach((item) => kill(item));
+
+        const newVi = resolveSubscribableValue(value);
+        vi.children = [newVi];
+
+        const newFrag = _toFrag(newVi, options);
         element.replaceChildren(newFrag);
       });
 
@@ -131,7 +148,13 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
           fs.setParent(start.parentNode);
         }
 
-        const newFrag = resolveSubscribableValueToFrag(value, options);
+        // free some memory
+        vi.children.forEach((item) => kill(item));
+
+        const newVi = resolveSubscribableValue(value);
+        vi.children = [newVi];
+
+        const newFrag = _toFrag(newVi, options);
         fs.spreadAndReplace(newFrag);
       });
 
@@ -140,21 +163,38 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
       fragment.appendChild(toInsert);
     }
     return fragment;
-  } else {
-    throw new Error(`unknown virtual item, contents: ${JSON.stringify(vi)}`);
   }
+
+  if (isFr(vi)) {
+    const rendered = vi.render();
+    return _toFrag(rendered, options);
+  }
+
+  throw new Error(`unknown virtual item, contents: ${JSON.stringify(vi)}`);
 }
 
-function resolveSubscribableValueToFrag(value: any, options: ToFragOptions): DocumentFragment {
-  if (typeof value === "undefined" || value === null) {
-    return window.document.createDocumentFragment();
-  } else if (isPrimitive(value)) {
-    const frag = window.document.createDocumentFragment();
-    frag.appendChild(window.document.createTextNode(value.toString()));
-    return frag;
-  } else {
-    return _toFrag(value, options);
+function resolveSubscribableValue(value: any): VirtualItem {
+  if (typeof value === "undefined" || value === null) return null;
+  if (isPrimitive(value)) return createVtn(value.toString());
+  return transformArgToVirtualItem(value);
+}
+
+/**
+ * Remove all subscribables of a VirtualItem, ending their life.
+ * @param vi
+ */
+function kill(vi: VirtualItem) {
+  if (typeof vi === "undefined" || vi === null || isFr(vi)) return;
+  if (vi.subscribable) vi.subscribable.unsubscribeAll();
+
+  if (isVtn(vi)) return;
+
+  if (isVe(vi)) {
+    if (vi.attributes.has("ref")) (vi.attributes.get("ref") as Ref<any>).kill();
+    vi.listeners.forEach(([key, value]) => window.document.removeEventListener(key, value));
   }
+
+  vi.children.forEach((item) => kill(item));
 }
 
 class FragmentSpread {

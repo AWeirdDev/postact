@@ -40,6 +40,11 @@ export interface Subscribable<T> {
    * ```
    */
   readonly unsubscribe: (pointer: Subscriber<T>) => void;
+
+  /**
+   * Unsubscribe all subscribers.
+   */
+  readonly unsubscribeAll: () => void;
 }
 
 export class BaseSubscribable<T> implements Subscribable<T> {
@@ -57,6 +62,10 @@ export class BaseSubscribable<T> implements Subscribable<T> {
 
   unsubscribe(pointer: Subscriber<T>): void {
     this.#subscribers.delete(pointer);
+  }
+
+  unsubscribeAll(): void {
+    this.#subscribers.clear();
   }
 
   /**

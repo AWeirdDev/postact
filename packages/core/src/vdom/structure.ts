@@ -4,12 +4,13 @@ import { type StyleDeclaration } from "../css";
 import type { Ref } from "../subscribables/ref";
 import type { Subscribable } from "../subscribables/base";
 
-type _Any = number | string | boolean | null | undefined;
+// for attributes
+type _Primitive = number | string | boolean | null | undefined;
 export type AttributeValue =
-  | _Any
+  | _Primitive
   | string
   | StyleDeclaration
-  | Subscribable<_Any>
+  | Subscribable<_Primitive>
   | Ref<any>
   | string[];
 export type Attributes = Map<string, AttributeValue>;
@@ -31,7 +32,6 @@ export function isVe(item: any): item is VirtualElement {
   return isPostactIdent(PostactIdentifier.VirtualElement, item);
 }
 
-// abstraction only
 export interface VirtualFragment {
   readonly __p: PostactIdentifier.VirtualFragment;
   children: VirtualItem[];
@@ -78,4 +78,44 @@ export function createVtn(data: string, subscribable?: Subscribable<any>): Virtu
   };
 }
 
-export type VirtualItem = VirtualTextNode | VirtualElement | VirtualFragment | null;
+export interface FunctionRender {
+  readonly __p: PostactIdentifier.FunctionRender;
+  render: () => VirtualItem;
+}
+
+/**
+ * Checks if the given item is a rendering function.
+ * @param item The item to check.
+ */
+export function isFr(item: any): item is FunctionRender {
+  return isPostactIdent(PostactIdentifier.FunctionRender, item);
+}
+
+/**
+ * Any virtual item. Could be a text node, an element, a fragment,
+ * a rendering function, or just null.
+ */
+export type VirtualItem =
+  | VirtualTextNode
+  | VirtualElement
+  | VirtualFragment
+  | FunctionRender
+  | null;
+
+/**
+ * Any type of unsanitized children.
+ * This should be preferred over {@link VirtualItem} because it's more
+ * flexible and easier to use.
+ */
+export type AnyChildren =
+  | VirtualItem
+  | string
+  | boolean
+  | number
+  | bigint
+  | undefined
+  | Subscribable<AnyChildren>
+  | FunctionRender
+  | AnyChildren[];
+
+export type PropsWithChildren<K = {}> = { children?: AnyChildren } & K;

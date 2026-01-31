@@ -87,6 +87,10 @@ export class BaseStateManager<T> implements State<T> {
     this.#subscribers.delete(pointer);
   }
 
+  unsubscribeAll(): void {
+    this.#subscribers.clear();
+  }
+
   emit(): void {
     const value = this.value; // value cache
     this.#subscribers.forEach((_, subscriber) => subscriber(value));

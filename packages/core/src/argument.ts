@@ -1,9 +1,8 @@
 import { isPrimitive } from "./utilities";
 import { isSubscribable, type Subscribable } from "./subscribables/base";
 
-import { createVf, createVtn, type VirtualItem } from "./vdom/structure";
-import type { Component, ComponentInstance } from "./component";
-import { isPostactEcosystem } from "./_internals";
+import { createVf, createVtn, type FunctionRender, type VirtualItem } from "./vdom/structure";
+import { PostactIdentifier } from "./_internals";
 
 type EventMap = {
   animation: AnimationEvent;
@@ -37,8 +36,9 @@ export type Argument =
   | Subscribable<any>
   | VirtualItem
   | EventHandler
-  | Component<any>
-  | ComponentInstance<any>;
+  | (() => VirtualItem);
+// | Component<any>
+// | ComponentInstance<any>;
 
 export enum ArgumentType {
   Empty,
@@ -65,17 +65,21 @@ export function identifyArgument(arg: Argument): ArgumentType {
   return ArgumentType.VirtualItem;
 }
 
-export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
-  switch (identifyArgument(insertion)) {
+/**
+ * Transform raw data ("argument") to renderable `VirtualItem`.
+ * @param arg The argument. Could be primitives, subscribables, functions, etc.
+ */
+export function transformArgToVirtualItem(arg: Argument): VirtualItem {
+  switch (identifyArgument(arg)) {
     case ArgumentType.Empty:
       return null;
 
     case ArgumentType.Text:
-      return createVtn(insertion!.toString());
+      return createVtn(arg!.toString());
 
     case ArgumentType.Subscribable:
       // we'll put the initial value
-      const state = insertion as Subscribable<any>;
+      const state = arg as Subscribable<any>;
       const value = state.value;
 
       if (typeof value !== "undefined" && value !== null) {
@@ -89,16 +93,13 @@ export function transformArgToVirtualItem(insertion: Argument): VirtualItem {
       }
 
     case ArgumentType.VirtualItem:
-      return insertion as VirtualItem;
+      return arg as VirtualItem;
 
     case ArgumentType.Function:
-      // similar to states, we'll do an initial render
-      const fValue = (insertion as Function)();
-      if (typeof fValue === "undefined" || fValue === null) return null;
-      if (isPrimitive(fValue)) return createVtn(fValue.toString());
-      if (!isPostactEcosystem(fValue))
-        throw new Error(`unresolvable value in children after function calling. value: ${fValue}`);
-
-      return fValue as VirtualItem;
+      // function render
+      return {
+        __p: PostactIdentifier.FunctionRender,
+        render: arg as () => VirtualItem,
+      } satisfies FunctionRender;
   }
 }

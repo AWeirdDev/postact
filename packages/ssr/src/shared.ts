@@ -1,7 +1,9 @@
 import {
   isVe,
   isVtn,
+  isFr,
   PostactIdentifier,
+  type FunctionRender,
   type VirtualElement,
   type VirtualFragment,
   type VirtualItem,
@@ -99,6 +101,8 @@ export class TransmitWriter {
       this.placeVe(vi);
     } else if (isVtn(vi)) {
       this.placeVtn(vi);
+    } else if (isFr(vi)) {
+      this.placeVirtualItem(vi.render());
     } else {
       this.placeVf(vi);
     }

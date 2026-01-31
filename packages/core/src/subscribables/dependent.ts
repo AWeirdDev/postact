@@ -46,6 +46,10 @@ export class Dependent<const T extends readonly unknown[], R> implements Subscri
   unsubscribe(pointer: Subscriber<R>): void {
     this.#subscribers.delete(pointer);
   }
+
+  unsubscribeAll(): void {
+    this.#subscribers.clear();
+  }
 }
 
 /**

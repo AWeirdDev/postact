@@ -1,28 +1,18 @@
 import { isPostactIdent, PostactIdentifier } from "../_internals";
-import { type Subscribable, type Subscriber } from "./base";
+import { BaseSubscribable } from "./base";
 
-class RefSubscribable<T> implements Subscribable<T | null> {
-  __p: PostactIdentifier.Ref = PostactIdentifier.Ref;
-  value: T | null;
-  #subscribers: Map<Subscriber<T>, Subscriber<T>>;
+class RefSubscribable<T> extends BaseSubscribable<T | null> {
+  constructor(initial: T | null) {
+    super(initial);
+  }
 
-  constructor() {
+  /**
+   * Kill this reference, meaning the item has died.
+   */
+  kill(): void {
     this.value = null;
-    this.#subscribers = new Map();
-  }
-
-  subscribe(subscriber: Subscriber<T>): void {
-    this.#subscribers.set(subscriber, subscriber);
-  }
-
-  unsubscribe(pointer: Subscriber<T>): void {
-    this.#subscribers.delete(pointer);
-  }
-
-  emit() {
-    const value = this.value; // cache
-    if (value === null) throw new Error("ref is currently null");
-    this.#subscribers.forEach((sub) => sub(value));
+    this.emit();
+    this.unsubscribeAll();
   }
 }
 
@@ -48,7 +38,9 @@ export type Ref<T extends HTMLElement> = RefSubscribable<T> & {
  * ```
  */
 export function ref<T extends HTMLElement>(): Ref<T> {
-  return new RefSubscribable<T>();
+  return Object.assign(new RefSubscribable<T | null>(null), {
+    __p: PostactIdentifier.Ref as const,
+  });
 }
 
 export function isRef(item: any): item is Ref<any> {

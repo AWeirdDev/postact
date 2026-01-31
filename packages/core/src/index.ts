@@ -21,14 +21,8 @@ export { text } from "./text";
 export { transformArgToVirtualItem } from "./argument";
 
 // components
-export {
-  component,
-  isComponentInstance,
-  isComponentPtr,
-  type PropsWithChildren,
-  type Component,
-  type ComponentInstance,
-} from "./component";
+export { Conditional } from "./components/conditional";
+export { For } from "./components/for";
 
 // vdom -> document dom
 export {
@@ -36,11 +30,15 @@ export {
   type VirtualItem,
   type VirtualTextNode,
   type VirtualFragment,
+  type FunctionRender,
+  type PropsWithChildren,
+  type AnyChildren,
   createVf,
   createVtn,
   isVe,
   isVf,
   isVtn,
+  isFr,
 } from "./vdom/structure";
 export { realize, type ToFragOptions } from "./vdom/client";
 
