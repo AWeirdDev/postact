@@ -50,6 +50,7 @@ jobs:
           for pkg_json in packages/*/package.json; do
             pkg_dir=$(dirname "$pkg_json")
             pkg_name=$(node -p "require('./$pkg_json').name")
+            pkg_version=$(node -p "require('./$pkg_json').version")
 
             cd "$pkg_dir"
             bun pm pack
@@ -59,16 +60,22 @@ jobs:
             echo "======> publishing $pkg_name ($pkg_dir)"
 
             if npm view "$pkg_name" version &>/dev/null; then
-              (
-                cd "$pkg_dir" || exit 1
+              remote_version="$(npm view "$pkg_name" version)"
 
-                npm publish "$tarball" \
-                  --access public \
-                  --tag ${{ steps.npm-tag.outputs.tag }}
+              if [ "$remote_version" = "$pkg_version" ]; then
+                echo "≈====== $pkg_name@$pkg_version already published, skipping"
+              else
+                (
+                  cd "$pkg_dir" || exit 1
 
-                rm -f "$tarball"
-              )
-              echo "<====== successfully published $pkg_name"
+                  npm publish "$tarball" \
+                    --access public \
+                    --tag ${{ steps.npm-tag.outputs.tag }}
+
+                  rm -f "$tarball"
+                )
+                echo "<====== successfully published $pkg_name@$pkg_version"
+              fi
             else
               echo "x====== package $pkg_name does not exist on npm yet"
             fi
