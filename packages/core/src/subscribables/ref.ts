@@ -26,6 +26,8 @@ export type Ref<T extends HTMLElement> = RefSubscribable<T> & {
 /**
  * Create a new reference.
  * Reference values (`.value`) remain `null` until rendered.
+ * When the referenced item is killed (removed from the DOM),
+ * you also get a notification, and `.value` will be `null`.
  *
  * @example
  * ```ts

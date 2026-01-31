@@ -23,6 +23,7 @@ export { transformArgToVirtualItem } from "./argument";
 // components
 export { Conditional } from "./components/conditional";
 export { For } from "./components/for";
+export { Show } from "./components/show";
 
 // vdom -> document dom
 export {

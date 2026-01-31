@@ -1,48 +1,28 @@
 import "./style.css";
 
-import { Conditional, dependent, For, ref, select, state } from "@postact/core";
+import {
+  Conditional,
+  Show,
+  dependent,
+  For,
+  ref,
+  select,
+  state,
+} from "@postact/core";
 
 function App() {
-  const $inputRef = ref<HTMLInputElement>();
-  const $todos = state<string[]>([]);
-
-  function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-
-    if ($inputRef.value === null) return;
-    const { value } = $inputRef.value;
-
-    if (!value) return;
-
-    $todos.update((arr) => {
-      arr.push(value);
-      return arr;
-    });
-
-    $inputRef.value.value = "";
-  }
+  const $text = state<string>("");
 
   return (
     <div>
-      <h1>Todos</h1>
-
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "8px",
-        }}
-        onsubmit={handleSubmit}
-      >
-        <input type="text" ref={$inputRef} required />
-        <button type="submit">+ Add</button>
-      </form>
-
-      <ul>
-        <For each={$todos}>
-          {(todo) => <li style={{ textAlign: "start" }}>{todo}</li>}
-        </For>
-      </ul>
+      <h1>Show?</h1>
+      <input
+        type="text"
+        onchange={(e) =>
+          $text.update((e.currentTarget! as unknown as { value: string }).value)
+        }
+      />
+      <Show when={$text}>{(text) => <p>Got: {text}</p>}</Show>
     </div>
   );
 }
