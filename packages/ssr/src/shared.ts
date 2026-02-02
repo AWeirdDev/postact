@@ -4,7 +4,6 @@ import {
   isFr,
   isPromise,
   PostactIdentifier,
-  type FunctionRender,
   type VirtualElement,
   type VirtualFragment,
   type VirtualItem,
