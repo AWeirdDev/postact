@@ -159,11 +159,6 @@ export declare namespace JSX {
   } & EventHandlers<T> &
     IntrinsicElementsProps & {
       /**
-       * Reference to the rendered item.
-       */
-      ref?: Ref<T>;
-
-      /**
        * HTML Classes.
        */
       [`class`]?: string | string[] | null;
