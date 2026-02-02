@@ -44,11 +44,26 @@ export function isVf(item: any): item is VirtualFragment {
 
 /**
  * (helper) Create a virtual fragment.
+ * Note:
  */
 export function createVf(
   children: VirtualItem[],
   subscribable?: Subscribable<any>,
 ): VirtualFragment {
+  // quick optimization
+  if (children.length === 1 && isVf(children[0]!) && !(subscribable && children[0].subscribable)) {
+    // subsribable && children[0].subscribable => skip
+    //
+    // !subscribable && children[0].subscribable => children[0].subscribable
+    // subscribable && !children[0].subscribable = subscribable
+    // !subscribable && !children[0].subscribable => undefined
+    return {
+      __p: PostactIdentifier.VirtualFragment,
+      children: children[0].children,
+      subscribable: children[0].subscribable ?? subscribable,
+    };
+  }
+
   return {
     __p: PostactIdentifier.VirtualFragment,
     children,
@@ -92,15 +107,31 @@ export function isFr(item: any): item is FunctionRender {
 }
 
 /**
- * Any virtual item. Could be a text node, an element, a fragment,
- * a rendering function, or just null.
+ * Virtual items without `Promise`.
+ * This avoids circular type dependencies.
  */
-export type VirtualItem =
+export type ResolvedVirtualItem =
   | VirtualTextNode
   | VirtualElement
   | VirtualFragment
   | FunctionRender
   | null;
+
+export type AsyncVirtualItem = Promise<ResolvedVirtualItem>;
+
+/**
+ * Any virtual item. Could be a text node, an element, a fragment,
+ * a rendering function, a promise, or just null.
+ */
+export type VirtualItem = ResolvedVirtualItem | AsyncVirtualItem;
+
+/**
+ *
+ * @param value Checks if the given item is a promise.
+ */
+export function isPromise(value: any): value is Promise<unknown> {
+  return typeof value?.then === "function";
+}
 
 /**
  * Any type of unsanitized children.
@@ -115,7 +146,6 @@ export type AnyChildren =
   | bigint
   | undefined
   | Subscribable<AnyChildren>
-  | FunctionRender
   | AnyChildren[];
 
 export type PropsWithChildren<K = {}> = { children?: AnyChildren } & K;

@@ -13,6 +13,7 @@ export {
   isSubscribable,
 } from "./subscribables/base";
 export { store } from "./subscribables/store";
+export { promised } from "./subscribables/promised";
 
 // display-related
 export { html, filterListenersFromAttributes } from "./html";
@@ -24,11 +25,13 @@ export { transformArgToVirtualItem } from "./argument";
 export { Conditional } from "./components/conditional";
 export { For } from "./components/for";
 export { Show } from "./components/show";
+export { Suspense } from "./components/suspense";
 
 // vdom -> document dom
 export {
   type VirtualElement,
   type VirtualItem,
+  type ResolvedVirtualItem,
   type VirtualTextNode,
   type VirtualFragment,
   type FunctionRender,
@@ -40,8 +43,9 @@ export {
   isVf,
   isVtn,
   isFr,
+  isPromise,
 } from "./vdom/structure";
-export { realize, type ToFragOptions } from "./vdom/client";
+export { realize } from "./vdom/client";
 
 // expose some internals... it's fine
 export { PostactIdentifier } from "./_internals";

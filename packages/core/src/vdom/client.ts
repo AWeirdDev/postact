@@ -1,6 +1,8 @@
 import {
+  createVf,
   createVtn,
   isFr,
+  isPromise,
   isVe,
   isVf,
   isVtn,
@@ -16,12 +18,14 @@ import { isSubscribable } from "../subscribables/base";
 import { isRef, type Ref } from "../subscribables/ref";
 import { type StyleDeclaration } from "../css";
 import { transformArgToVirtualItem } from "../argument";
+import { promised } from "../subscribables/promised";
+import { dependent } from "../subscribables/dependent";
 
 const ATTRIBUTE_RENAMES: Record<string, string> = {
   className: "class",
 };
 
-function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
+function _toFrag(vi: VirtualItem): DocumentFragment {
   const fragment = window.document.createDocumentFragment();
   if (vi === null || typeof vi === "undefined") return fragment;
 
@@ -38,10 +42,10 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
     // it's only needed if subscribables are present
     // otherwise it's a waste of resource
     if (vtn.subscribable) {
-      const id = options.debug ? simpleRandString() : "";
+      const id = simpleRandString();
 
-      const start = window.document.createComment(options.debug ? `${id}` : "");
-      const end = window.document.createComment(options.debug ? `/${id}` : "");
+      const start = window.document.createComment(`${id}`);
+      const end = window.document.createComment(`/${id}`);
 
       const fs = new FragmentSpread(start, end, fragment); // as of now, the parent is the container
       const children = Maybe.none<VirtualItem>();
@@ -59,7 +63,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
         const newVi = resolveSubscribableValue(value);
         children.replace(newVi);
 
-        const newFrag = _toFrag(newVi, options);
+        const newFrag = _toFrag(newVi);
         fs.spreadAndReplace(newFrag);
       });
       fragment.append(start, tn, end);
@@ -83,6 +87,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
       if (isRef(value)) {
         value.value = element;
         value.emit();
+        return;
       }
 
       // for regular subscribable attributes
@@ -117,12 +122,12 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
         const newVi = resolveSubscribableValue(value);
         vi.children = [newVi];
 
-        const newFrag = _toFrag(newVi, options);
+        const newFrag = _toFrag(newVi);
         element.replaceChildren(newFrag);
       });
 
     // inner children
-    element.append(...vi.children.map((child) => _toFrag(child, options)));
+    element.append(...vi.children.map((child) => _toFrag(child)));
 
     fragment.appendChild(element);
     return fragment;
@@ -131,16 +136,16 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
   if (isVf(vi)) {
     // fragment (VirtualFragment)
     const toInsert = vi.children.reduce((frag, vi) => {
-      frag.append(_toFrag(vi, options));
+      frag.append(_toFrag(vi));
       return frag;
     }, window.document.createDocumentFragment());
 
     // again, it's only needed if there are subscribables
     if (vi.subscribable) {
-      const id = options.debug ? simpleRandString() : "";
+      const id = simpleRandString();
 
-      const start = window.document.createComment(options.debug ? `${id}` : "");
-      const end = window.document.createComment(options.debug ? `/${id}` : "");
+      const start = window.document.createComment(`${id}`);
+      const end = window.document.createComment(`/${id}`);
       const fs = new FragmentSpread(start, end, fragment);
 
       vi.subscribable.subscribe((value) => {
@@ -154,7 +159,7 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
         const newVi = resolveSubscribableValue(value);
         vi.children = [newVi];
 
-        const newFrag = _toFrag(newVi, options);
+        const newFrag = _toFrag(newVi);
         fs.spreadAndReplace(newFrag);
       });
 
@@ -167,10 +172,16 @@ function _toFrag(vi: VirtualItem, options: ToFragOptions): DocumentFragment {
 
   if (isFr(vi)) {
     const rendered = vi.render();
-    return _toFrag(rendered, options);
+    return _toFrag(rendered);
   }
 
-  throw new Error(`unknown virtual item, contents: ${JSON.stringify(vi)}`);
+  if (isPromise(vi)) {
+    // by default, when they're not wrapped,
+    // promised `VirtualItem`s just show whenever they're ready
+    return _toFrag(createVf([], promised(vi)));
+  }
+
+  throw new Error(`unknown virtual item, contents: ${JSON.stringify(vi satisfies never)}`);
 }
 
 function resolveSubscribableValue(value: any): VirtualItem {
@@ -184,7 +195,7 @@ function resolveSubscribableValue(value: any): VirtualItem {
  * @param vi
  */
 function kill(vi: VirtualItem) {
-  if (typeof vi === "undefined" || vi === null || isFr(vi)) return;
+  if (typeof vi === "undefined" || vi === null || isFr(vi) || isPromise(vi)) return;
   if (vi.subscribable) vi.subscribable.unsubscribeAll();
 
   if (isVtn(vi)) return;
@@ -261,22 +272,6 @@ function applyCssDeclaration(element: HTMLElement, styleDecl: StyleDeclaration) 
   });
 }
 
-export interface ToFragOptions {
-  /**
-   * Whether to enable debug mode. *(default: `false`)*
-   * When debug mode is enabled, comments will appear in the following format,
-   * wrapping fragments:
-   * ```html
-   * <!--xxxxxx-->
-   * <!--/xxxxxx-->
-   * ```
-   * When disabled, all identifiers are wiped out.
-   */
-  debug?: boolean;
-}
-
-const DEFAULT_TOFRAG_OPTIONS = { debug: false };
-
 /**
  * Converts a virtual DOM to a {@link DocumentFragment} for rendering it on the web.
  * To put it short, this process is called "realization," and as the name suggests, it
@@ -286,10 +281,7 @@ const DEFAULT_TOFRAG_OPTIONS = { debug: false };
  * @param vi The virtual item.
  * @param options Additional options. For more, see {@link ToFragOptions}.
  */
-export function realize(
-  vi: VirtualItem,
-  options: ToFragOptions = DEFAULT_TOFRAG_OPTIONS,
-): DocumentFragment {
+export function realize(vi: VirtualItem): DocumentFragment {
   ensureWindow();
-  return _toFrag(vi, options);
+  return _toFrag(vi);
 }

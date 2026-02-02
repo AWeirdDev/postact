@@ -62,6 +62,7 @@ export function identifyArgument(arg: Argument): ArgumentType {
     return ArgumentType.Subscribable;
   }
 
+  arg satisfies VirtualItem;
   return ArgumentType.VirtualItem;
 }
 

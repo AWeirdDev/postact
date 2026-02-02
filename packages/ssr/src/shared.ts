@@ -2,6 +2,7 @@ import {
   isVe,
   isVtn,
   isFr,
+  isPromise,
   PostactIdentifier,
   type FunctionRender,
   type VirtualElement,
@@ -103,6 +104,8 @@ export class TransmitWriter {
       this.placeVtn(vi);
     } else if (isFr(vi)) {
       this.placeVirtualItem(vi.render());
+    } else if (isPromise(vi)) {
+      throw new TypeError("promise objects are not supported");
     } else {
       this.placeVf(vi);
     }

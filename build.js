@@ -1,5 +1,10 @@
 import { $ } from "bun";
 
+if (process.argv[2] == "--skip") {
+  console.log("nothing to do, skipping");
+  process.exit(0);
+}
+
 const priority = ["serde", "core", "ssr", "jsx", "client-router"];
 
 console.log(`======> formatting codespace`);

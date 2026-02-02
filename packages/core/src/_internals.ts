@@ -47,7 +47,6 @@ export class Maybe<T> {
 export enum PostactIdentifier {
   Dependent = 0,
   State = 1,
-
   VirtualElement = 2,
   VirtualFragment = 3,
   VirtualTextNode = 4,
@@ -56,6 +55,7 @@ export enum PostactIdentifier {
   ComponentInstance = 7, // RESERVED, DEPRECATED
   Ref = 8,
   FunctionRender = 9,
+  Context = 10,
 }
 
 /**
@@ -86,9 +86,9 @@ export function isPostactIdent<K extends PostactIdentifier>(ident: K, item: any)
 }
 
 /**
- * Create a non-safe, simple random string.
+ * Create a non-safe, simple random string based on the time.
  * @param len The length of the string.
  */
-export function simpleRandString(len: number = 6): string {
-  return Array.from({ length: len }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+export function simpleRandString(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
